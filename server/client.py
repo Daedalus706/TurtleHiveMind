@@ -64,7 +64,8 @@ class ClientConnection:
 
     def send_data(self, message_type:str, payload:dict) -> bool:
         try:
-            self.websocket.send({"payload": payload, "type": message_type})
+            message = json.dumps({"payload": payload, "type": message_type})
+            self.websocket.send(message)
             return True
         except ConnectionClosed:
             self.active = False
