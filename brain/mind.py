@@ -9,5 +9,5 @@ class Mind:
 
     def update(self):
         time.sleep(1)
-        success = self.message_controller.broadcast_message("empty", None)
-        print("broadcast message", success)
+        sent_to = self.message_controller.broadcast_message("empty", None)
+        print("broadcast message to", sent_to)
