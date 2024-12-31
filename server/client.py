@@ -1,4 +1,5 @@
 import json
+import time
 from queue import Queue
 import threading
 
@@ -28,6 +29,7 @@ class ClientConnection:
         self.event_queue = event_queue
         self.stop_event = threading.Event()
         self.active = True
+        self.last_received = time.time()
 
         self.input_thread = threading.Thread(target=self._input_handler, daemon=True)
 
@@ -37,6 +39,7 @@ class ClientConnection:
             data_dict = None
             try:
                 data = self.websocket.recv()
+                self.last_received = time.time()
                 if type(data) == str:
                     data_dict = json.loads(data)
             except ConnectionClosed:
@@ -64,6 +67,7 @@ class ClientConnection:
         self.input_thread.start()
 
     def stop(self):
+        self.active = False
         self.stop_event.set()
         self.input_thread.join()
         self.websocket.close()
@@ -75,6 +79,5 @@ class ClientConnection:
             self.websocket.send(message)
             return True
         except ConnectionClosed:
-            self.active = False
-            self.stop_event.set()
+            self.stop()
             return False
