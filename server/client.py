@@ -46,6 +46,13 @@ class ClientConnection:
             if data_dict is None:
                 continue
 
+            if data_dict["type"] == "pong":
+                continue
+
+            if data_dict["type"] == "ping":
+                self.send_data("pong", None)
+                continue
+
             new_event = self._create_event(data_dict)
 
             if new_event is None:
@@ -62,7 +69,7 @@ class ClientConnection:
         self.websocket.close()
         print(f"Closed Client connection {self.id}")
 
-    def send_data(self, message_type:str, payload:dict) -> bool:
+    def send_data(self, message_type:str, payload:dict|None) -> bool:
         try:
             message = json.dumps({"payload": payload, "type": message_type})
             self.websocket.send(message)
