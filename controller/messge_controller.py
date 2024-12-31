@@ -10,3 +10,9 @@ class MessageController:
         if turtle_id not in self.server.connections.keys():
             return False
         return self.server.connections[turtle_id].send_data(message_type, data)
+
+    def broadcast_message(self, message_type: str, data: dict | None) -> bool:
+        message_sent = False
+        for turtle_id, client in self.server.connections.items():
+            message_sent = message_sent or client.send_data(message_type, data)
+        return message_sent

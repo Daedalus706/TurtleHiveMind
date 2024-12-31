@@ -1,4 +1,4 @@
-
+import time
 from controller import MessageController
 
 class Mind:
@@ -8,4 +8,6 @@ class Mind:
         self.message_controller = message_controller
 
     def update(self):
-        pass
+        time.sleep(1)
+        success = self.message_controller.broadcast_message("empty", None)
+        print("broadcast message", success)

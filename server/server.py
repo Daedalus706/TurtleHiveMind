@@ -17,7 +17,7 @@ class Server:
     def server_worker(websocket: SocketServer):
         websocket.serve_forever()
 
-    def __init__(self, message_controller:MessageController, host="localhost", port=5020):
+    def __init__(self, message_controller:MessageController, host, port):
         message_controller.server = self
         self.host = host
         self.port = port
