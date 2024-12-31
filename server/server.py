@@ -42,8 +42,9 @@ class Server:
         handshake_data_dict =  json.loads(websocket.recv())
 
         turtle_id = handshake_data_dict["turtle_id"]
-        position = handshake_data_dict["position"]
-        direction = handshake_data_dict["direction"]
+        payload = handshake_data_dict["payload"]
+        position = payload["position"]
+        direction = payload["direction"]
 
         self.add_connection(turtle_id, websocket, event_queue)
 
