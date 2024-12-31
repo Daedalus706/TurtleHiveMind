@@ -64,4 +64,3 @@ class Server:
             connection.stop()
         self.stop_event.set()
         self.websocket.socket.close()
-        self.server_thread.join()
