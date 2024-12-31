@@ -8,9 +8,7 @@ from websockets import *
 from websockets.sync.server import ServerConnection
 
 
-
 class ClientConnection:
-
 
     @staticmethod
     def _create_event(data:dict) -> ClientBaseEvent | None:

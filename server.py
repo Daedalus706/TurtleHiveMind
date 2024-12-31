@@ -1,5 +1,3 @@
-import time
-
 from controller import MessageController
 from server import Server
 from brain import Mind
