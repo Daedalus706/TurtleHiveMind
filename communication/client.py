@@ -36,7 +36,7 @@ class ClientConnection:
         self.heartbeat_thread = threading.Thread(target=self._heartbeat_worker, daemon=True)
 
     def _heartbeat_worker(self):
-        while not self.stop_event.is_set():
+        while self.active():
             if self.last_received + const.PING_INTERVAL < time.time():
                 self.ping()
                 time.sleep(1)
@@ -45,16 +45,17 @@ class ClientConnection:
                 self.stop()
 
     def _input_handler(self):
-        while not self.stop_event.is_set():
+        while self.active():
             data_dict = None
             try:
                 data = self.websocket.recv()
                 self.last_received = time.time()
                 if type(data) == str:
                     data_dict = json.loads(data)
-            except ConnectionClosed as e:
-                print(f"Connection to turtle_{self.turtle_id} closed while awaiting input")
-                self.stop()
+            except ConnectionClosed:
+                if self.active():
+                    print(f"Connection to turtle_{self.turtle_id} closed while awaiting input")
+                    self.stop()
 
             if data_dict is None:
                 continue
@@ -98,7 +99,8 @@ class ClientConnection:
             message = json.dumps({"payload": payload, "type": message_type})
             self.websocket.send(message)
             return True
-        except ConnectionClosed as e:
-            print(f"Connection to turtle_{self.turtle_id} closed while sending message")
-            self.stop()
+        except ConnectionClosed:
+            if self.active():
+                print(f"Connection to turtle_{self.turtle_id} closed while sending message")
+                self.stop()
             return False
