@@ -1,5 +1,5 @@
 from controller import MessageController
-from server import Server
+from communication import Server
 from brain import Mind
 
 

@@ -8,7 +8,7 @@ from websockets.sync.server import Server as SocketServer
 
 from controller import MessageController
 from event import *
-from server.client import ClientConnection
+from communication.client import ClientConnection
 
 
 class Server:
