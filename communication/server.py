@@ -25,7 +25,7 @@ class Server:
 
         self.stop_event = threading.Event()
 
-        self.connections:dict[int,ClientConnection] = {}
+        self.clients:dict[int,ClientConnection] = {}
 
         bound_handler = functools.partial(self.websocket_handler, message_controller=message_controller)
         self.socket_server = serve(bound_handler, self.host, self.port)
@@ -36,11 +36,18 @@ class Server:
     def add_connection(self, turtle_id, websocket, message_controller):
         new_connection = ClientConnection(turtle_id, websocket, message_controller)
         new_connection.start()
-        self.connections[turtle_id] = new_connection
+        self.clients[turtle_id] = new_connection
+
+    def remove_connection(self, turtle_id):
+        if turtle_id not in self.clients:
+            return
+        if self.clients[turtle_id].active:
+            self.clients[turtle_id].stop()
+        del self.clients[turtle_id]
 
 
     def websocket_handler(self, websocket:ServerConnection, message_controller:MessageController):
-        handshake_data_dict =  json.loads(websocket.recv())
+        handshake_data_dict = json.loads(websocket.recv())
 
         turtle_id = handshake_data_dict["turtle_id"]
         payload = handshake_data_dict["payload"]
@@ -48,12 +55,13 @@ class Server:
         direction = payload["direction"]
 
         self.add_connection(turtle_id, websocket, message_controller)
+        print(f"{handshake_data_dict=}")
 
         new_event = NewTurtleEvent(turtle_id, position, direction)
         message_controller.add_event(new_event)
 
         print(f"New client connection with id {turtle_id}")
-        self.connections[turtle_id].stop_event.wait()
+        self.clients[turtle_id].stop_event.wait()
 
 
     def start(self):
@@ -61,14 +69,14 @@ class Server:
         print("Server started")
 
     def stop(self):
-        for client_id, connection in self.connections.items():
-            connection.stop()
+        for client_id, client in self.clients.items():
+            client.stop()
         self.stop_event.set()
         self.socket_server.socket.close()
 
-    def get_connection_keys(self):
-        return list(self.connections.keys())
+    def get_client_keys(self):
+        return list(self.clients.keys())
 
-    def get_connection(self, key):
-        return self.connections[key]
+    def get_client(self, key):
+        return self.clients[key]
 
