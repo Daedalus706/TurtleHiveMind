@@ -30,7 +30,6 @@ class ClientConnection:
         self.message_controller = message_controller
 
         self.stop_event = threading.Event()
-        self.active = True
         self.last_received = time.time()
 
         self.input_thread = threading.Thread(target=self._input_handler, daemon=True)
@@ -46,7 +45,6 @@ class ClientConnection:
                 self.stop()
 
     def _input_handler(self):
-        print(f"Started Client id {self.turtle_id}")
         while not self.stop_event.is_set():
             data_dict = None
             try:
@@ -79,10 +77,10 @@ class ClientConnection:
         self.heartbeat_thread.start()
 
     def stop(self):
-        self.active = False
-        self.stop_event.set()
-        self.websocket.close()
-        self.message_controller.close_connection(self.turtle_id)
+        if self.active():
+            self.stop_event.set()
+            self.websocket.close()
+            self.message_controller.close_connection(self.turtle_id)
 
     def join_threads(self):
         self.heartbeat_thread.join()
@@ -90,6 +88,9 @@ class ClientConnection:
 
     def ping(self):
         self.send_data("ping", None)
+
+    def active(self) -> bool:
+        return not self.stop_event.is_set()
 
     def send_data(self, message_type:str, payload:dict|None) -> bool:
         try:

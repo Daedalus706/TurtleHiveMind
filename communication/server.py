@@ -39,10 +39,10 @@ class Server:
         self.clients[turtle_id] = new_connection
 
     def remove_connection(self, turtle_id):
-        print(f"removed client {turtle_id} from dict")
         if turtle_id not in self.clients:
             return
-        if self.clients[turtle_id].active:
+        print(f"removed client {turtle_id} from dict")
+        if self.clients[turtle_id].active():
             self.clients[turtle_id].stop()
         del self.clients[turtle_id]
 
