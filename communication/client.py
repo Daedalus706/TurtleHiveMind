@@ -37,7 +37,7 @@ class ClientConnection:
         self.heartbeat_thread = threading.Thread(target=self._heartbeat_worker, daemon=True)
 
     def _heartbeat_worker(self):
-        while not self.stop_event.set():
+        while not self.stop_event.is_set():
             if self.last_received + const.PING_INTERVAL < time.time():
                 self.ping()
                 time.sleep(1)
