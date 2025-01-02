@@ -69,10 +69,12 @@ class Server:
         print("Server started")
 
     def stop(self):
-        for client_id, client in self.clients.items():
-            client.stop()
         self.stop_event.set()
         self.socket_server.socket.close()
+        for client in self.clients.values():
+            client.stop()
+        for client in self.clients.values():
+            client.join_threads()
 
     def get_client_keys(self):
         return list(self.clients.keys())
