@@ -28,6 +28,7 @@ class ClientConnection:
         self.turtle_id = turtle_id
         self.websocket = websocket
         self.message_controller = message_controller
+
         self.stop_event = threading.Event()
         self.active = True
         self.last_received = time.time()
@@ -36,13 +37,13 @@ class ClientConnection:
         self.heartbeat_thread = threading.Thread(target=self._heartbeat_worker, daemon=True)
 
     def _heartbeat_worker(self):
-        current_time = time.time()
-        if self.last_received + const.PING_INTERVAL < current_time:
-            self.ping()
-            time.sleep(1)
-        if self.last_received + const.TIMEOUT_INTERVAL < current_time:
-            print(f"Timeout on client {self.turtle_id}")
-            self.stop()
+        while not self.stop_event.set():
+            if self.last_received + const.PING_INTERVAL < time.time():
+                self.ping()
+                time.sleep(1)
+            if self.last_received + const.TIMEOUT_INTERVAL < time.time():
+                print(f"Timeout on client {self.turtle_id}")
+                self.stop()
 
     def _input_handler(self):
         print(f"Started Client id {self.turtle_id}")
@@ -83,7 +84,7 @@ class ClientConnection:
         self.input_thread.join()
         self.heartbeat_thread.join()
         self.websocket.close()
-        print(f"Closed Client connection {self.turtle_id}")
+        self.message_controller.close_connection(self.turtle_id)
 
     def ping(self):
         self.send_data("ping", None)
@@ -94,5 +95,6 @@ class ClientConnection:
             self.websocket.send(message)
             return True
         except ConnectionClosed:
+            print(f"Lost connection to client {self.turtle_id}")
             self.stop()
             return False
