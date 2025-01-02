@@ -1,21 +1,22 @@
 import functools
 import threading
 import json
-from queue import Queue
 
 from websockets.sync.server import ServerConnection, serve
 from websockets.sync.server import Server as SocketServer
 
-from controller import MessageController
 from event import *
+from controller import MessageController
 from communication.client import ClientConnection
 
 
 class Server:
 
     @staticmethod
-    def server_worker(websocket: SocketServer):
-        websocket.serve_forever()
+    def server_worker(socket_server: SocketServer):
+        socket_server.serve_forever()
+
+
 
     def __init__(self, message_controller:MessageController, host, port):
         message_controller.server = self
@@ -26,19 +27,19 @@ class Server:
 
         self.connections:dict[int,ClientConnection] = {}
 
-        bound_handler = functools.partial(self.websocket_handler, event_queue=message_controller.event_queue)
-        self.websocket = serve(bound_handler, self.host, self.port)
+        bound_handler = functools.partial(self.websocket_handler, message_controller=message_controller)
+        self.socket_server = serve(bound_handler, self.host, self.port)
 
-        self.server_thread = threading.Thread(target=Server.server_worker, args=(self.websocket,), daemon=True)
+        self.server_thread = threading.Thread(target=Server.server_worker, args=(self.socket_server,), daemon=True)
 
 
-    def add_connection(self, turtle_id, websocket, event_queue):
-        new_connection = ClientConnection(turtle_id, websocket, event_queue)
+    def add_connection(self, turtle_id, websocket, message_controller):
+        new_connection = ClientConnection(turtle_id, websocket, message_controller)
         new_connection.start()
         self.connections[turtle_id] = new_connection
 
 
-    def websocket_handler(self, websocket:ServerConnection, event_queue:Queue):
+    def websocket_handler(self, websocket:ServerConnection, message_controller:MessageController):
         handshake_data_dict =  json.loads(websocket.recv())
 
         turtle_id = handshake_data_dict["turtle_id"]
@@ -46,10 +47,10 @@ class Server:
         position = payload["position"]
         direction = payload["direction"]
 
-        self.add_connection(turtle_id, websocket, event_queue)
+        self.add_connection(turtle_id, websocket, message_controller)
 
         new_event = NewTurtleEvent(turtle_id, position, direction)
-        event_queue.put(new_event)
+        message_controller.add_event(new_event)
 
         print(f"New client connection with id {turtle_id}")
         self.connections[turtle_id].stop_event.wait()
@@ -63,4 +64,11 @@ class Server:
         for client_id, connection in self.connections.items():
             connection.stop()
         self.stop_event.set()
-        self.websocket.socket.close()
+        self.socket_server.socket.close()
+
+    def get_connection_keys(self):
+        return list(self.connections.keys())
+
+    def get_connection(self, key):
+        return self.connections[key]
+
