@@ -79,11 +79,10 @@ class ClientConnection:
         self.heartbeat_thread.start()
 
     def stop(self):
-        if self.active:
-            self.active = False
-            self.stop_event.set()
-            self.websocket.close()
-            self.message_controller.close_connection(self.turtle_id)
+        self.active = False
+        self.stop_event.set()
+        self.websocket.close()
+        self.message_controller.close_connection(self.turtle_id)
 
     def join_threads(self):
         self.heartbeat_thread.join()
