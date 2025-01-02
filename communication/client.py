@@ -52,7 +52,8 @@ class ClientConnection:
                 self.last_received = time.time()
                 if type(data) == str:
                     data_dict = json.loads(data)
-            except ConnectionClosed:
+            except ConnectionClosed as e:
+                print(f"Connection to turtle_{self.turtle_id} closed while awaiting input ", e)
                 self.stop()
 
             if data_dict is None:
@@ -97,7 +98,7 @@ class ClientConnection:
             message = json.dumps({"payload": payload, "type": message_type})
             self.websocket.send(message)
             return True
-        except ConnectionClosed:
-            print(f"Lost connection to client {self.turtle_id}")
+        except ConnectionClosed as e:
+            print(f"Connection to turtle_{self.turtle_id} closed while sending message", e)
             self.stop()
             return False
