@@ -28,4 +28,4 @@ class MessageController:
         return not self.event_queue.empty()
 
     def close_connection(self, turtle_id:int):
-        self.server.close_connection(turtle_id)
+        self.server.remove_connection(turtle_id)
