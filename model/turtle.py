@@ -6,3 +6,4 @@ class Turtle:
         self.turtle_id = turtle_id
         self.position = position
         self.direction = direction
+        self.inventory = None
