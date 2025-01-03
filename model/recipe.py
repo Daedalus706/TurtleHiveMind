@@ -41,7 +41,7 @@ class Recipe:
                             items[item] += 1
                 if "count" in data["result"]:
                     count = data["result"]["count"]
-                return Recipe(item_name, pattern, items, count)
+                return CraftingRecipe(item_name, pattern, items, count)
 
             case 'minecraft:crafting_shapeless':
                 for i, ingredient in enumerate(data["ingredients"]):
@@ -58,26 +58,34 @@ class Recipe:
                         items[item] += 1
                 if "count" in data["result"]:
                     count = data["result"]["count"]
-                return Recipe(item_name, pattern, items, count)
+                return CraftingRecipe(item_name, pattern, items, count)
 
             case _:
                 return None
 
-    def __init__(self, item_name:str, pattern:list, item_group_list, count:int):
+    def __init__(self, item_name:str, ):
         self.item_name = item_name
+
+    def to_dict(self):
+        return {"item_name": self.item_name}
+
+    def __repr__(self):
+        return f"{self.to_dict()}"
+
+class CraftingRecipe(Recipe):
+    def __init__(self, item_name:str, pattern:list, item_group_list, count:int):
+        super().__init__(item_name)
         self.pattern = pattern
         self.item_group_list = item_group_list
         self.count = count
 
     def to_dict(self):
-        return {
-            "item_name": self.item_name,
-            "pattern": self.pattern,
-            "item_group_list": self.item_group_list,
-            "count": self.count,
-        }
+        return_dict = super().to_dict()
+        return_dict["pattern"] = self.pattern
+        return_dict["item_group_list"] = self.item_group_list
+        return_dict["count"] = self.count
+        return return_dict
 
     def __repr__(self):
         return f"{self.to_dict()}"
-
 
