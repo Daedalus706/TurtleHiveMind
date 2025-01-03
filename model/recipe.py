@@ -43,12 +43,19 @@ class Recipe:
 
             case 'minecraft:crafting_shapeless':
                 for i, ingredient in enumerate(data["ingredients"]):
-                    item = ingredient["item"]
+                    if "tag" in ingredient:
+                        item = ingredient["tag"]
+                    elif "item" in ingredient:
+                        item = ingredient["item"]
+                    else:
+                        raise KeyError(f"{ingredient} not specified")
                     pattern[i] = item
                     if item not in items:
                         items[item] = 1
                     else:
                         items[item] += 1
+                if "count" in data["result"]:
+                    count = data["result"]["count"]
                 return Recipe(item_name, pattern, items, count)
 
             case _:
