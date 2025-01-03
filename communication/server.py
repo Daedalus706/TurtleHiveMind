@@ -72,9 +72,9 @@ class Server:
     def stop(self):
         self.stop_event.set()
         self.socket_server.socket.close()
-        for client in self.clients.values():
+        for client in set(self.clients.values()):
             client.stop()
-        for client in self.clients.values():
+        for client in set(self.clients.values()):
             client.join_threads()
 
     def get_client_keys(self):
