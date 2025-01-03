@@ -241,6 +241,57 @@ local function pullItemFromChest(side, itemName, itemCount)
 end
 
 
+---combines all broken stacks in a chest and moves them to the front
+---@param side string top, bottom, front, left, right, back
+---@return number success 0 if successful, 1 if no chest was found at the specified side
+local function compactChest(side)
+    local chest = peripheral.wrap(side)
+    if not chest then
+        return 1
+    end
+
+    for i = 1, chest.size(), 1 do
+
+        -- if slot empty, move any item to slot
+        if not chest.getItemDetail(i) then
+            local itemsRemain = false
+            for j = i+1, chest.size(), 1 do
+                if chest.getItemDetail(j) then
+                    chest.pushItems(side, j, 64, i)
+                    itemsRemain = true
+                    break
+                end
+            end
+            if not itemsRemain then -- end if no items are left to compact
+                return 0
+            end
+        end
+
+        -- move all items from other slots to i, until i is full
+        local itemsRemain = false
+        for j = i+1, chest.size(), 1 do
+
+            -- move to next slot if the current slot is full
+            if chest.getItemLimit(i) - chest.getItemDetail(i).count == 0 then
+                goto continue
+            end
+
+            if chest.getItemDetail(j) then
+                itemsRemain = true
+                if chest.getItemDetail(j).name == chest.getItemDetail(i).name then
+                    chest.pushItems(side, j, 64, i)
+                end
+            end
+        end
+        if not itemsRemain then -- end if no items are left to compact
+            return 0
+        end
+        ::continue::
+    end
+    return 0
+end
+
+
 return {
     findEmptySlot = findEmptySlot,
     findFirstEmptySlot = findFirstEmptySlot,
@@ -250,4 +301,5 @@ return {
     pullItemFromChest = pullItemFromChest,
     getChestContent = getChestContent,
     getChestSize = getChestSize,
+    compactChest = compactChest,
 }
