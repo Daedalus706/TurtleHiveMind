@@ -1,4 +1,4 @@
--- websocketApi.lua
+---@class WebsocketAPI
 
 local websocket = nil
 local running = true

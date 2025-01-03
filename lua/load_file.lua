@@ -36,8 +36,8 @@ if not failed_to_load_file then
 
     local args = {...}
     if #args < 1 or not (args[1] == "no_reboot") then
-        print("Reboot in 3 seconds")
-        sleep(3)
+        print("Reboot in 1 seconds")
+        sleep(1)
         os.reboot()
     end
 else

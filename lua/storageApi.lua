@@ -1,4 +1,4 @@
----@class StorrageAPI
+---@class StorageAPI
 
 
 ---@return number slot the slot or 0 if no empty slots are left
@@ -12,6 +12,33 @@ local function findEmptySlot(except)
         end
     end
     return 0
+end
+
+---@return number slot the first slot or 0 if no empty slots are left
+local function findFirstEmptySlot()
+    for i = 1, 16, 1 do
+        if turtle.getItemCount(i) == 0 then
+            return i
+        end
+    end
+    return 0
+end
+
+---@param itemName string? the name of the item that should fit in the turtle, leave blank or nil if no specific item is required
+---@return number space the number of items of the specified type, that can fit in the turtles inventory
+local function spaceForItem(itemName)
+    local space = 0
+    for i = 1, 16, 1 do
+        local itemDetail = turtle.getItemDetail(i)
+        if not itemDetail then
+            space = space + 64
+        elseif itemName then
+            if itemDetail.name == itemName then
+                space = space + turtle.getItemSpace(i)
+            end
+        end
+    end
+    return space
 end
 
 
@@ -30,37 +57,197 @@ local function clearSlot(slot)
 end
 
 
+---If a chest is st the specified chest, the Items will be moved to the chest
+---@param side string top, bottom, front
 ---@return table successState {success = boolean, transferCount = number}
-local function transferAllUp()
+local function dropAllItems(side)
     local transferCount = 0
-    clearSlot(16)
-    turtle.select(16)
-    while turtle.suckDown() do
-        if not turtle.dropUp() then
-            turtle.dropDown()
-            return {success = false, transferCount = transferCount}
-        else
-            transferCount = transferCount + 1
+    local drop = nil
+
+    if side == "top" then
+        drop = turtle.dropUp
+    elseif side == "front" then
+        drop = turtle.drop
+    elseif side == "bottom" then
+        drop = turtle.dropDown
+    else
+        return {success = false, transferCount = 0}
+    end
+
+    for i = 1, 16, 1 do
+        turtle.select(i)
+        local itemCount = turtle.getItemCount()
+        if drop() then
+            transferCount = transferCount + itemCount
         end
     end
+
     return {success = true, transferCount = transferCount}
-    
+
+end
+
+---@param side string top, bottom, front, left, right, back
+---@return table? content a table with chest slots as keys and a table with name, count 
+local function getChestContent(side)
+    local chest = peripheral.wrap(side)
+    if chest then
+        return chest.list()
+    end
+    return nil
 end
 
 
---- Fetch specific items from the chest above to the turtles inventory. Needs a chest underneath, for temporary storage
----@return number successState 0 = success, 1 = item not found, 2 = not enough in store, 3 = not enough inventory space
+---@param side string top, bottom, front, left, right, back
+---@return table? content a table with chest slots as keys and a table with name, count 
+local function getChestSize(side)
+    local chest = peripheral.wrap(side)
+    if chest then
+        return chest.size()
+    end
+    return nil
+end
+
+
+---Fetches specific items from a chest to the turtles inventory.
 ---@param itemName string
 ---@param itemCount number
-local function fetchItem(itemName, itemCount)
+---@param side string top, bottom, front
+---@return table successState {success = number, transferCount = number} 0 = success, 1 = item not found, 2 = not enough in store, 3 = not enough inventory space, 4 = no space to move items, 5 = whong siden name, 6 = peripheral not found
+local function pullItemFromChest(side, itemName, itemCount)
 
-    return 0
+    -- select the function for the specified peripheral location
+    local suck = nil
+    local drop = nil
+    if side == "top" then
+        suck = turtle.suckUp
+        drop = turtle.dropUp
+    elseif side == "front" then
+        suck = turtle.suck
+        drop = turtle.drop
+    elseif side == "bottom" then
+        suck = turtle.suckDown
+        drop = turtle.dropDown
+    else
+        return {5, 0}
+    end
+
+    -- check if the peripheral is present
+    local chest = peripheral.wrap(side)
+    if not chest then
+        return {6, 0}
+    end
+
+    local content = chest.list()
+    local turtleItemSpace = spaceForItem(itemName)
+
+    local totalTransferedItems = 0
+    local emptySlot = 0
+    local suckAmount = 64
+
+    local storeItemSlots = {}
+    local storeItemCount = 0
+    for i = 1, chest.size(), 1 do
+        if content[i] then
+            if content[i].name == itemName then
+                storeItemCount = storeItemCount + content[i].count
+                table.insert(storeItemSlots, i)
+            end
+        else
+            emptySlot = i
+        end
+    end
+
+    -- Chest does not have the provided item
+    if storeItemCount == 0 then
+        return {1, 0}
+    end
+
+    -- Check if the turtle has space for any item if the specified type
+    if turtleItemSpace == 0 then
+        return {3, 0}
+    end
+
+    -- if the turtle is full
+    local turtleTempSlot = nil
+    if emptySlot == 0 then
+        turtleTempSlot = findEmptySlot()
+        if content[1].name == itemName then
+            suckAmount = (itemCount < suckAmount) and itemCount or suckAmount
+            suckAmount = (turtleItemSpace < suckAmount) and turtleItemSpace or suckAmount
+
+            suck(suckAmount)
+
+            totalTransferedItems = totalTransferedItems + suckAmount
+            turtleItemSpace = turtleItemSpace - suckAmount
+            if totalTransferedItems == itemCount then
+                return {0, totalTransferedItems}
+            end
+        end
+        if turtleTempSlot == 0 and chest.getItemDetail(1) then
+            return {4, totalTransferedItems}
+        end
+        if not chest.getItemDetail(1) then
+            emptySlot = 1
+        end
+    end
+
+    -- empty slot 1 for item transfer
+    if emptySlot == 0 then
+        turtleTempSlot = findEmptySlot()
+        turtle.select(turtleTempSlot)
+        suck()
+    elseif emptySlot ~= 1 and storeItemSlots[1] and storeItemSlots[1] == 1 then
+        suckAmount = (itemCount < 64) and itemCount or 64
+        suckAmount = (turtleItemSpace < suckAmount) and turtleItemSpace or suckAmount
+        suckAmount = (chest.getItemDetail(1).count < suckAmount) and chest.getItemDetail(1).count or suckAmount
+        suck(suckAmount)
+        totalTransferedItems = totalTransferedItems + suckAmount
+        turtleItemSpace = turtleItemSpace - suckAmount
+    else
+        chest.pushItems(side, 1, 64, emptySlot)
+    end
+
+    -- transfer items (loop starts at 2 because slot 1 is already cleared)
+    for i = 2, #storeItemSlots, 1 do
+        local slot = storeItemSlots[i]
+        local itemsInFirst = chest.pushItems(side, slot, 64, 1)
+        local itemsLeftToTernsfer = itemCount - totalTransferedItems
+        suckAmount = (itemsLeftToTernsfer < 64) and itemsLeftToTernsfer or 64
+        suckAmount = (itemsInFirst < suckAmount) and itemsInFirst or suckAmount
+        suckAmount = (turtleItemSpace < suckAmount) and turtleItemSpace or suckAmount
+
+        suck(suckAmount)
+        totalTransferedItems = totalTransferedItems + suckAmount
+        turtleItemSpace = turtleItemSpace - suckAmount
+        itemsLeftToTernsfer = itemCount - totalTransferedItems
+
+        if turtleItemSpace == 0 and itemsLeftToTernsfer ~= 0 then
+            return {3, totalTransferedItems}
+        end
+    end
+
+    -- move temporarely stored items back to chest
+    if turtleTempSlot then
+        turtle.select(turtleTempSlot)
+        drop()
+    end
+
+    -- check if not enough items were in chest
+    if itemCount - totalTransferedItems > 0 then
+        return {2, totalTransferedItems}
+    end
+
+    return {0, totalTransferedItems}
 end
 
 
 return {
     findEmptySlot = findEmptySlot,
+    findFirstEmptySlot = findFirstEmptySlot,
+    spaceForItem = spaceForItem,
     clearSlot = clearSlot,
-    transferAllUp = transferAllUp,
-    fetchItem = fetchItem,
+    dropAllItems = dropAllItems,
+    pullItemFromChest = pullItemFromChest,
+    getChestContent = getChestContent,
+    getChestSize = getChestSize,
 }
