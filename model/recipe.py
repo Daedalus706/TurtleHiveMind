@@ -26,6 +26,8 @@ class Recipe:
             case 'minecraft:crafting_shaped':
                 for y, row in enumerate(data["pattern"]):
                     for x, key in enumerate(row):
+                        if key == " ":
+                            continue
                         if "tag" in data["key"][key]:
                             item = data["key"][key]["tag"]
                         elif "item" in data["key"][key]:
