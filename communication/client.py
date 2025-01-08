@@ -1,6 +1,5 @@
 import json
 import time
-from queue import Queue
 import threading
 
 from controller import MessageController
@@ -87,7 +86,7 @@ class ClientConnection:
         if self.active():
             self.stop_event.set()
             self.websocket.close()
-            self.message_controller.close_connection(self.turtle_id)
+            self.websocket = None
 
     def join_threads(self):
         self.heartbeat_thread.join()
@@ -100,6 +99,8 @@ class ClientConnection:
         return not self.stop_event.is_set()
 
     def send_data(self, message_type:str, payload:dict|None) -> bool:
+        if self.stop_event.is_set():
+            return False
         try:
             message = json.dumps({"payload": payload, "type": message_type})
             self.websocket.send(message)

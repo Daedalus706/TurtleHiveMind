@@ -17,7 +17,6 @@ class Server:
         socket_server.serve_forever()
 
 
-
     def __init__(self, message_controller:MessageController, host, port):
         message_controller.server = self
         self.host = host
@@ -39,16 +38,6 @@ class Server:
         self.clients[turtle_id] = new_connection
         new_connection.send_data("request_turtle_info", None)
 
-    def remove_connection(self, turtle_id):
-        if turtle_id not in self.clients:
-            return
-        print(f"removed client {turtle_id} from dict")
-        if self.clients[turtle_id].active():
-            self.clients[turtle_id].stop()
-        if turtle_id not in self.clients:
-            return
-        del self.clients[turtle_id]
-
 
     def websocket_handler(self, websocket:ServerConnection, message_controller:MessageController):
         handshake_data_dict = json.loads(websocket.recv())
@@ -67,6 +56,7 @@ class Server:
         self.server_thread.start()
         print("Server started")
 
+
     def stop(self):
         self.stop_event.set()
         self.socket_server.socket.close()
@@ -75,8 +65,10 @@ class Server:
         for client in set(self.clients.values()):
             client.join_threads()
 
-    def get_client_keys(self):
-        return list(self.clients.keys())
+
+    def get_active_client_keys(self) -> list[int]:
+        return list(filter(lambda key: self.clients[key].active(), self.clients.keys()))
+
 
     def get_client(self, key):
         return self.clients[key]
