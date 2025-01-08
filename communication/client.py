@@ -12,13 +12,12 @@ from websockets.sync.server import ServerConnection
 
 class ClientConnection:
 
-    @staticmethod
-    def _create_event(turtle_id:int, event_type:str, payload:dict) -> ClientBaseEvent | None:
+    def _create_event(self, event_type:str, payload:dict) -> ClientBaseEvent | None:
         match event_type:
 
             case "turtle_info":
                 return TurtleInfoEvent(
-                    turtle_id=turtle_id,
+                    turtle_id=self.turtle_id,
                     position=payload["position"] if "position" in payload else None,
                     direction=payload["direction"] if "direction" in payload else None,
                     fuel=payload["fuel"] if "fuel" in payload else None,
@@ -73,7 +72,7 @@ class ClientConnection:
                 self.send_data("pong", None)
                 continue
 
-            new_event = self._create_event(data_dict["turtle_id"], data_dict["type"], data_dict["payload"])
+            new_event = self._create_event(data_dict["type"], data_dict["payload"])
 
             if new_event is None:
                 continue

@@ -51,7 +51,7 @@ class Server:
     def websocket_handler(self, websocket:ServerConnection, message_controller:MessageController):
         handshake_data_dict = json.loads(websocket.recv())
 
-        turtle_id = handshake_data_dict["turtle_id"]
+        turtle_id = handshake_data_dict["payload"]
         self.add_connection(turtle_id, websocket, message_controller)
 
         new_event = NewTurtleConnectionEvent(turtle_id)
