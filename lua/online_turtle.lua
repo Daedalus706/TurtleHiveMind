@@ -1,10 +1,6 @@
 
 local handled_messages = 0
 
-local function performHandshake()
-    websocketAPI.send("handshake", nil)
-end
-
 
 local function sendTurtleInfo()
     local data = {
@@ -37,7 +33,7 @@ end
 
 
 local function setup()
-    performHandshake()
+    
 end
 
 local function main()
