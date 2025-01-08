@@ -2,6 +2,7 @@ import functools
 import threading
 import json
 
+from websockets import ConnectionClosed
 from websockets.sync.server import ServerConnection, serve
 from websockets.sync.server import Server as SocketServer
 
@@ -40,7 +41,11 @@ class Server:
 
 
     def websocket_handler(self, websocket:ServerConnection, message_controller:MessageController):
-        handshake_data_dict = json.loads(websocket.recv())
+        try:
+            handshake_data_dict = json.loads(websocket.recv())
+        except ConnectionClosed:
+            print("Connection Error: New connection failed to handshake")
+            return
 
         turtle_id = handshake_data_dict["payload"]
         self.add_connection(turtle_id, websocket, message_controller)
