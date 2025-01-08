@@ -6,4 +6,5 @@ return {
     "load_file.lua",
     "online_turtle.lua",
     "startup.lua",
+    "test_walk.lua"
 }

@@ -13,5 +13,6 @@ positionAPI.loadPosition()
 
 -- Connect to websocket
 websocketAPI.connect(url)
+websocketAPI.performHandshake()
 
 shell.run("online_turtle")

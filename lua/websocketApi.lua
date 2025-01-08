@@ -48,7 +48,6 @@ local function send(type, data)
         running = false
     end
     local return_table = {
-        turtle_id = os.getComputerID(),
         type = type,
         payload = data
     }
@@ -77,6 +76,13 @@ local function sendPong()
 end
 
 
+local function performHandshake()
+    if websocket then
+        send("handshake", os.getComputerID())
+    end
+end
+
+
 ---@return table websocket
 local function attemptReconnect()
     print("Attempt reconnect...")
@@ -90,9 +96,8 @@ local function attemptReconnect()
             print("Successfully reconnected.")
             lastMessageTime = os.clock()
             newSocket.send(textutils.serialiseJSON({
-                turtle_id = os.getComputerID(),
-                type = "reconnect",
-                payload = nil
+                type = "handshake",
+                payload = os.getComputerID()
             }))
             return newSocket
         else
@@ -105,7 +110,7 @@ end
 --- Starts the websocket listener thread.
 ---@param messageHandler function
 local function startListener(messageHandler)
-
+    print("starting websocket listener")
     parallel.waitForAny(
         function()
             while running do
@@ -177,6 +182,7 @@ local API = {
     connect = connect,
     disconnect = disconnect,
     send = send,
+    performHandshake = performHandshake,
     startListener = startListener,
     isConnected = isConnected,
     isRunning = isRunning,
