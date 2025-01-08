@@ -33,7 +33,7 @@ class Recipe:
                         elif "item" in data["key"][key]:
                             item = data["key"][key]["item"]
                         else:
-                            raise KeyError(f"{data["key"][key]} not specified")
+                            raise KeyError(f"{data['key'][key]} not specified")
                         pattern[y*3+x] = item
                         if item not in items:
                             items[item] = 1
