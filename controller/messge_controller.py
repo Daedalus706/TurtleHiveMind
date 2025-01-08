@@ -24,6 +24,12 @@ class MessageController:
     def get_event(self, block=True, timeout=None):
         return self.event_queue.get(block, timeout)
 
+    def get_events(self):
+        events = []
+        while self.has_event():
+            events.append(self.event_queue.get())
+        return events
+
     def has_event(self):
         return not self.event_queue.empty()
 
