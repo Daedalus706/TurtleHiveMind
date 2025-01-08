@@ -5,12 +5,14 @@ local running = true
 local PING_INTERVAL = 5
 local TIMEOUT_INTERVAL = 10
 local lastMessageTime = os.clock()
+local _url = nil
 
 
 --- Initialize WebSocket-Connection
 ---@param url string the url the turtle sould connect to
 ---@return boolean success 
 local function connect(url)
+    _url = url
     if websocket then
         print("Already connected")
         return false
@@ -50,7 +52,12 @@ local function send(type, data)
         type = type,
         payload = data
     }
-    websocket.send(textutils.serialiseJSON(return_table))
+    local success, message = pcall(websocket.send, textutils.serialiseJSON(return_table))
+    if not success then
+        print("Error while sending data: " .. tostring(message))
+        pcall(websocket.close)
+        websocket = nil
+    end
 end
 
 
@@ -58,7 +65,6 @@ end
 local function sendPing()
     if websocket then
         send("ping", nil)
-        print("Ping an den Server gesendet.")
     end
 end
 
@@ -71,46 +77,80 @@ local function sendPong()
 end
 
 
+---@return table websocket
+local function attemptReconnect()
+    print("Attempt reconnect...")
+    local i = 0
+    while not websocket do
+        i = i + 1
+        print("Attempt " .. i)
+        local success, newSocket = pcall(http.websocket, _url)
+
+        if success and newSocket then
+            print("Successfully reconnected.")
+            lastMessageTime = os.clock()
+            newSocket.send(textutils.serialiseJSON({
+                turtle_id = os.getComputerID(),
+                type = "reconnect",
+                payload = nil
+            }))
+            return newSocket
+        else
+            sleep(5)
+        end
+    end
+end
+
+
 --- Starts the websocket listener thread.
 ---@param messageHandler function
 local function startListener(messageHandler)
-    if not websocket then
-        error("WebSocket not connected")
-    end
 
     parallel.waitForAny(
         function()
             while running do
-                local message = websocket.receive()
-                if message then
+                if not websocket then
+                    websocket = attemptReconnect()
+                end
+
+                local successRecive, message = pcall(websocket.receive)
+                if not successRecive then
+                    print(message)
+                    websocket = nil
+                else
                     lastMessageTime = os.clock()
-                    local success, data = pcall(textutils.unserializeJSON, message)
+                    local successJson, data = pcall(textutils.unserializeJSON, message)
 
-                    if not success then
-                        print("Invalid message reveived: " .. message)
-                    end
-
-                    if data.type == "ping" then
-                        sendPong()
+                    if not successJson then
+                        print("Invalid message reveived: " .. tostring(message))
                     else
-                        messageHandler(data)
-                    end
 
+                        if data.type == "ping" then
+                            sendPong()
+                        else
+                            messageHandler(data)
+                        end
+
+                    end
                 end
             end
         end,
         function ()
             while running do
-                if os.clock() - lastMessageTime > PING_INTERVAL then
-                    sendPing()
-                end
+                if not websocket then
+                    sleep(1)
+                else
+                    if os.clock() - lastMessageTime > PING_INTERVAL then
+                        sendPing()
+                    end
 
-                sleep(1)
+                    sleep(1)
 
-                if os.clock() - lastMessageTime > TIMEOUT_INTERVAL then
-                    print("Connection Timeout")
-                    websocket.close()
-                    running = false
+                    if os.clock() - lastMessageTime > TIMEOUT_INTERVAL then
+                        print("Connection Timeout")
+                        pcall(websocket.close)
+                        websocket = nil
+                    end
                 end
             end
         end
