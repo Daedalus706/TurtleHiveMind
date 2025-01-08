@@ -58,7 +58,7 @@ class Server:
         message_controller.add_event(new_event)
 
         print(f"New client connection with id {turtle_id}")
-        #self.clients[turtle_id].stop_event.wait()
+        self.clients[turtle_id].stop_event.wait()
 
 
     def start(self):
