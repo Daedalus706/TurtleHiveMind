@@ -4,7 +4,9 @@ local handled_messages = 0
 local function perform_handshake()
     local data = {
         position = positionAPI.getPosition(),
-        direction = positionAPI.getDirection()
+        direction = positionAPI.getDirection(),
+        fuel = turtle.getFuelLevel(),
+        inventory = storageAPI.getInventory()
     }
     websocketAPI.send("handshake", data)
 end
