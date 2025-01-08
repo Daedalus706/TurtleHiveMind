@@ -45,6 +45,8 @@ class Server:
         print(f"removed client {turtle_id} from dict")
         if self.clients[turtle_id].active():
             self.clients[turtle_id].stop()
+        if turtle_id not in self.clients:
+            return
         del self.clients[turtle_id]
 
 
