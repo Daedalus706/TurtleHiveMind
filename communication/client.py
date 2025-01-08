@@ -16,8 +16,14 @@ class ClientConnection:
     def _create_event(data:dict) -> ClientBaseEvent | None:
         match data["type"]:
 
-            case "pong":
-                return ClientBaseEvent(turtle_id=data["turtle_id"])
+            case "turtle_info":
+                return TurtleInfoEvent(
+                    turtle_id=data["turtle_id"],
+                    position=data["position"] if "position" in data else None,
+                    direction=data["direction"] if "direction" in data else None,
+                    fuel=data["fuel"] if "fuel" in data else None,
+                    inventory=data["inventory"] if "inventory" in data else None
+                )
 
             case _:
                 return None
