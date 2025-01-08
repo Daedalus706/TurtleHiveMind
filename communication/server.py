@@ -37,6 +37,7 @@ class Server:
         new_connection = ClientConnection(turtle_id, websocket, message_controller)
         new_connection.start()
         self.clients[turtle_id] = new_connection
+        new_connection.send_data("request_turtle_info", None)
 
     def remove_connection(self, turtle_id):
         if turtle_id not in self.clients:
@@ -51,18 +52,13 @@ class Server:
         handshake_data_dict = json.loads(websocket.recv())
 
         turtle_id = handshake_data_dict["turtle_id"]
-        payload = handshake_data_dict["payload"]
-        position = payload["position"]
-        direction = payload["direction"]
-
         self.add_connection(turtle_id, websocket, message_controller)
-        print(f"{handshake_data_dict=}")
 
-        new_event = NewTurtleEvent(turtle_id, position, direction)
+        new_event = NewTurtleConnectionEvent(turtle_id)
         message_controller.add_event(new_event)
 
         print(f"New client connection with id {turtle_id}")
-        self.clients[turtle_id].stop_event.wait()
+        #self.clients[turtle_id].stop_event.wait()
 
 
     def start(self):
