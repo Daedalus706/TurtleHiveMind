@@ -1,5 +1,17 @@
 ---@class StorageAPI
 
+---@return table inventory itemName and count for all inventory slots of the turtle
+local function getInventory()
+    local inventory = {}
+    for i = 1, 16, 1 do
+        local itemData = turtle.getItemDetail(i)
+        if itemData then
+            table.insert(inventory, i, itemData)
+        end
+    end
+    return inventory
+end
+
 
 ---@return number slot the slot or 0 if no empty slots are left
 ---@param except number? (optional) a slot to be excluded from the search
@@ -144,6 +156,7 @@ local function pullItemFromChest(side, itemName, itemCount)
     local emptySlot = 0
     local suckAmount = 64
 
+    -- probe the chest
     local storeItemSlots = {}
     local storeItemCount = 0
     for i = 1, chest.size(), 1 do
@@ -156,6 +169,7 @@ local function pullItemFromChest(side, itemName, itemCount)
             emptySlot = i
         end
     end
+    print(itemName .. " in chest " .. storeItemCount)
 
     -- Chest does not have the provided item
     if storeItemCount == 0 then
@@ -167,7 +181,7 @@ local function pullItemFromChest(side, itemName, itemCount)
         return {3, 0}
     end
 
-    -- if the turtle is full
+    -- Check if the chest is full
     local turtleTempSlot = nil
     if emptySlot == 0 then
         turtleTempSlot = findEmptySlot()
@@ -251,13 +265,15 @@ local function compactChest(side)
     end
 
     for i = 1, chest.size(), 1 do
+        local iDetail = chest.getItemDetail(i)
 
         -- if slot empty, move any item to slot
-        if not chest.getItemDetail(i) then
+        if not iDetail then
             local itemsRemain = false
             for j = i+1, chest.size(), 1 do
                 if chest.getItemDetail(j) then
                     chest.pushItems(side, j, 64, i)
+                    iDetail = chest.getItemDetail(i)
                     itemsRemain = true
                     break
                 end
@@ -270,15 +286,17 @@ local function compactChest(side)
         -- move all items from other slots to i, until i is full
         local itemsRemain = false
         for j = i+1, chest.size(), 1 do
+            local jDetial = chest.getItemDetail(j)
 
             -- move to next slot if the current slot is full
-            if chest.getItemLimit(i) - chest.getItemDetail(i).count == 0 then
+            if chest.getItemLimit(i) - iDetail.count == 0 then
                 goto continue
             end
 
-            if chest.getItemDetail(j) then
+            
+            if jDetial then
                 itemsRemain = true
-                if chest.getItemDetail(j).name == chest.getItemDetail(i).name then
+                if jDetial.name == iDetail.name then
                     chest.pushItems(side, j, 64, i)
                 end
             end
@@ -293,6 +311,7 @@ end
 
 
 return {
+    getInventory = getInventory,
     findEmptySlot = findEmptySlot,
     findFirstEmptySlot = findFirstEmptySlot,
     spaceForItem = spaceForItem,
