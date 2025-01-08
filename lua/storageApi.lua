@@ -5,9 +5,7 @@ local function getInventory()
     local inventory = {}
     for i = 1, 16, 1 do
         local itemData = turtle.getItemDetail(i)
-        if itemData then
-            table.insert(inventory, i, itemData)
-        end
+        table.insert(inventory, i, itemData)
     end
     return inventory
 end

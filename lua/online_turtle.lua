@@ -1,25 +1,43 @@
 
 local handled_messages = 0
 
-local function perform_handshake()
+local function performHandshake()
+    websocketAPI.send("handshake", nil)
+end
+
+
+local function sendTurtleInfo()
     local data = {
         position = positionAPI.getPosition(),
         direction = positionAPI.getDirection(),
         fuel = turtle.getFuelLevel(),
         inventory = storageAPI.getInventory()
     }
-    websocketAPI.send("handshake", data)
+    websocketAPI.send("turtle_info", data)
 end
 
 
 local function messageHandler(data)
     handled_messages = handled_messages + 1
-    print("handled_messages: " .. handled_messages .. "type: " .. data.type)
+    print("handled_messages: " .. handled_messages .. "type: " .. tostring(data.type))
+    if not data or type(data) ~= "table" then
+        print("Invalid data received: " .. type(data))
+    else
+        if not data.type then
+            print("Invalid data type received: " .. tostring(data.type))
+        else
+
+            if data.type == "request_turtle_info" then
+                sendTurtleInfo()
+            end
+
+        end
+    end
 end
 
 
 local function setup()
-    perform_handshake()
+    performHandshake()
 end
 
 local function main()
