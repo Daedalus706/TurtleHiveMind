@@ -8,7 +8,7 @@ class MessageController:
         self.server = None
 
     def send_message(self, turtle_id:int, message_type:str, data:dict|None) -> bool:
-        if turtle_id not in self.server.get_client_keys():
+        if turtle_id not in self.server.get_active_client_keys():
             return False
         return self.server.get_client(turtle_id).send_data(message_type, data)
 
@@ -33,6 +33,3 @@ class MessageController:
 
     def has_event(self):
         return not self.event_queue.empty()
-
-    def close_connection(self, turtle_id:int):
-        self.server.remove_connection(turtle_id)
