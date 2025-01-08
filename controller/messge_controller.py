@@ -1,4 +1,5 @@
 from queue import Queue
+from event import *
 
 
 class MessageController:
@@ -18,13 +19,13 @@ class MessageController:
                 message_sent.add(turtle_id)
         return message_sent
 
-    def add_event(self, new_event):
+    def add_event(self, new_event:BaseEvent):
         self.event_queue.put(new_event)
 
-    def get_event(self, block=True, timeout=None):
+    def get_event(self, block=True, timeout:float|None=None) -> BaseEvent:
         return self.event_queue.get(block, timeout)
 
-    def get_events(self):
+    def get_events(self) -> list[BaseEvent]:
         events = []
         while self.has_event():
             events.append(self.event_queue.get())
