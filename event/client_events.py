@@ -7,6 +7,12 @@ class ClientBaseEvent(BaseEvent):
 
 
 @dataclass
-class NewTurtleEvent(ClientBaseEvent):
-    position: dict
-    direction: int
+class NewTurtleConnectionEvent(ClientBaseEvent):
+    pass
+
+@dataclass
+class TurtleInfoEvent(ClientBaseEvent):
+    position: None|dict
+    direction: None|int
+    fuel: None|int
+    inventory: None|dict
