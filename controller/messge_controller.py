@@ -14,7 +14,7 @@ class MessageController:
 
     def broadcast_message(self, message_type:str, data:dict|None) -> set:
         message_sent = set()
-        for turtle_id in self.server.get_client_keys():
+        for turtle_id in self.server.get_active_client_keys():
             if self.server.get_client(turtle_id).send_data(message_type, data):
                 message_sent.add(turtle_id)
         return message_sent
