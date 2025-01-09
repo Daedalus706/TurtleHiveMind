@@ -12,7 +12,8 @@ _G.storageAPI = require("StorageAPI")
 positionAPI.loadPosition()
 
 -- Connect to websocket
-websocketAPI.connect(url)
-websocketAPI.performHandshake()
+--websocketAPI.connect(url)
+--websocketAPI.performHandshake()
 
-shell.run("online_turtle")
+--shell.run("online_turtle")
+

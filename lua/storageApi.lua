@@ -125,6 +125,12 @@ end
 ---@return table successState {success = number, transferCount = number} 0 = success, 1 = item not found, 2 = not enough in store, 3 = not enough inventory space, 4 = no space to move items, 5 = whong siden name, 6 = peripheral not found
 local function pullItemFromChest(side, itemName, itemCount)
 
+    -- check if the peripheral is present
+    local chest = peripheral.wrap(side)
+    if not chest then
+        return {6, 0}
+    end
+
     -- select the function for the specified peripheral location
     local suck = nil
     local drop = nil
@@ -141,22 +147,28 @@ local function pullItemFromChest(side, itemName, itemCount)
         return {5, 0}
     end
 
-    -- check if the peripheral is present
-    local chest = peripheral.wrap(side)
-    if not chest then
-        return {6, 0}
+    -- Check if the turtle has space for any item if the specified type
+    local turtleItemSpace = spaceForItem(itemName)
+    if turtleItemSpace == 0 then
+        return {3, 0}
     end
 
-    local content = chest.list()
-    local turtleItemSpace = spaceForItem(itemName)
-
+    -- get item from first slot, if present
     local totalTransferedItems = 0
-    local emptySlot = 0
     local suckAmount = 64
+    if chest.getItemDetail(1) and chest.getItemDetail(1).name == itemName then
+        suckAmount = math.min(itemCount, 64, turtleItemSpace, chest.getItemDetail(1).count)
+        suck(suckAmount)
+        itemCount = itemCount - suckAmount
+        totalTransferedItems = totalTransferedItems + suckAmount
+    end
+
 
     -- probe the chest
     local storeItemSlots = {}
     local storeItemCount = 0
+    local content = chest.list()
+    local emptySlot = 0
     for i = 1, chest.size(), 1 do
         if content[i] then
             if content[i].name == itemName then
@@ -164,19 +176,15 @@ local function pullItemFromChest(side, itemName, itemCount)
                 table.insert(storeItemSlots, i)
             end
         else
-            emptySlot = i
+            if emptySlot == 0 then
+                emptySlot = i
+            end
         end
     end
-    print(itemName .. " in chest " .. storeItemCount)
 
     -- Chest does not have the provided item
     if storeItemCount == 0 then
         return {1, 0}
-    end
-
-    -- Check if the turtle has space for any item if the specified type
-    if turtleItemSpace == 0 then
-        return {3, 0}
     end
 
     -- Check if the chest is full
@@ -184,10 +192,15 @@ local function pullItemFromChest(side, itemName, itemCount)
     if emptySlot == 0 then
         turtleTempSlot = findEmptySlot()
         if content[1].name == itemName then
-            suckAmount = (itemCount < suckAmount) and itemCount or suckAmount
-            suckAmount = (turtleItemSpace < suckAmount) and turtleItemSpace or suckAmount
+            suckAmount = math.min(64, itemCount, turtleItemSpace, content[1].count)
 
             suck(suckAmount)
+            if not chest.getItemDetail(1) then
+                content[1] = nil
+                emptySlot = 1
+            else
+                content[1].count = content[1].count-suckAmount
+            end
 
             totalTransferedItems = totalTransferedItems + suckAmount
             turtleItemSpace = turtleItemSpace - suckAmount
@@ -208,10 +221,12 @@ local function pullItemFromChest(side, itemName, itemCount)
         turtleTempSlot = findEmptySlot()
         turtle.select(turtleTempSlot)
         suck()
-    elseif emptySlot ~= 1 and storeItemSlots[1] and storeItemSlots[1] == 1 then
-        suckAmount = (itemCount < 64) and itemCount or 64
-        suckAmount = (turtleItemSpace < suckAmount) and turtleItemSpace or suckAmount
-        suckAmount = (chest.getItemDetail(1).count < suckAmount) and chest.getItemDetail(1).count or suckAmount
+    elseif storeItemSlots[1] == 1 then
+        local inSlot1 = 0
+        if chest.getItemDetail(1) then
+            inSlot1 = chest.getItemDetail(1).count
+        end
+        suckAmount = math.min(itemCount-totalTransferedItems, 64, turtleItemSpace, inSlot1)
         suck(suckAmount)
         totalTransferedItems = totalTransferedItems + suckAmount
         turtleItemSpace = turtleItemSpace - suckAmount
@@ -220,21 +235,22 @@ local function pullItemFromChest(side, itemName, itemCount)
     end
 
     -- transfer items (loop starts at 2 because slot 1 is already cleared)
-    for i = 2, #storeItemSlots, 1 do
+    for i = 1, #storeItemSlots, 1 do
         local slot = storeItemSlots[i]
         local itemsInFirst = chest.pushItems(side, slot, 64, 1)
         local itemsLeftToTernsfer = itemCount - totalTransferedItems
-        suckAmount = (itemsLeftToTernsfer < 64) and itemsLeftToTernsfer or 64
-        suckAmount = (itemsInFirst < suckAmount) and itemsInFirst or suckAmount
-        suckAmount = (turtleItemSpace < suckAmount) and turtleItemSpace or suckAmount
 
+        suckAmount = math.min(64, itemsLeftToTernsfer, itemsInFirst, turtleItemSpace)
         suck(suckAmount)
+
         totalTransferedItems = totalTransferedItems + suckAmount
         turtleItemSpace = turtleItemSpace - suckAmount
         itemsLeftToTernsfer = itemCount - totalTransferedItems
 
         if turtleItemSpace == 0 and itemsLeftToTernsfer ~= 0 then
             return {3, totalTransferedItems}
+        elseif itemsLeftToTernsfer == 0 then
+            break
         end
     end
 
