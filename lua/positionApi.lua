@@ -104,7 +104,7 @@ local function getPosition()
     return position
 end
 
----@return number direction 0 = Norden, 1 = Osten, 2 = Süden, 3 = Westen
+---@return number direction 0 = north, 1 = east, 2 = south, 3 = west
 local function getDirection()
     return direction
 end

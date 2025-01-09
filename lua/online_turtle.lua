@@ -46,5 +46,16 @@ end
 setup()
 parallel.waitForAny(
     websocketAPI.startListener(messageHandler),
-    main()
+    function ()
+        while true do
+            local success, err = pcall(main)
+            if not success then
+                local errorMessage = "Critical Error: " .. tostring(err)
+                print(errorMessage)
+                websocketAPI.sendError(errorMessage)
+                sleep(2)
+            end
+        end
+    end
+    
 )

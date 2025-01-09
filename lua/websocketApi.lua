@@ -83,6 +83,12 @@ local function performHandshake()
 end
 
 
+local function sendError(message)
+    if websocket then
+        send("error", message)
+    end
+end
+
 ---@return table websocket
 local function attemptReconnect()
     print("Attempt reconnect...")
@@ -182,6 +188,7 @@ local API = {
     connect = connect,
     disconnect = disconnect,
     send = send,
+    sendError = sendError,
     performHandshake = performHandshake,
     startListener = startListener,
     isConnected = isConnected,
