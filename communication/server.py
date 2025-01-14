@@ -9,6 +9,7 @@ from websockets.sync.server import Server as SocketServer
 from event import *
 from controller import MessageController
 from communication.client import ClientConnection
+from communication.command import CommandConnection
 
 
 class Server:
@@ -26,6 +27,7 @@ class Server:
         self.stop_event = threading.Event()
 
         self.clients:dict[int,ClientConnection] = {}
+        self.command = None
 
         bound_handler = functools.partial(self.websocket_handler, message_controller=message_controller)
         self.socket_server = serve(bound_handler, self.host, self.port)
@@ -47,14 +49,25 @@ class Server:
             print("Connection Error: New connection failed to handshake")
             return
 
-        turtle_id = handshake_data_dict["payload"]
-        self.add_connection(turtle_id, websocket, message_controller)
+        match handshake_data_dict["type"]:
+            case "turtle_handshake":
+                turtle_id = handshake_data_dict["payload"]
+                self.add_connection(turtle_id, websocket, message_controller)
 
-        new_event = NewTurtleConnectionEvent(turtle_id)
-        message_controller.add_event(new_event)
+                new_event = NewTurtleConnectionEvent(turtle_id)
+                message_controller.add_event(new_event)
 
-        print(f"New client connection with id {turtle_id}")
-        self.clients[turtle_id].stop_event.wait()
+                print(f"New client connection with id {turtle_id}")
+                self.clients[turtle_id].stop_event.wait()
+
+            case "command_handshake":
+                if self.command is None:
+                    self.command = CommandConnection(websocket, message_controller)
+                    self.command.start()
+                    self.command.send_data("info", {"text": "connected"})
+
+            case _:
+                pass
 
 
     def start(self):
