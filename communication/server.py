@@ -66,6 +66,7 @@ class Server:
                     self.command.start()
                     self.command.send_data("info", {"text": "connected"})
                     print(f"New command connection")
+                    self.command.stop_event.wait()
 
             case _:
                 pass
