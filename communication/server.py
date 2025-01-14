@@ -27,7 +27,7 @@ class Server:
         self.stop_event = threading.Event()
 
         self.clients:dict[int,ClientConnection] = {}
-        self.command = None
+        self.command:CommandConnection|None = None
 
         bound_handler = functools.partial(self.websocket_handler, message_controller=message_controller)
         self.socket_server = serve(bound_handler, self.host, self.port)
@@ -62,7 +62,7 @@ class Server:
 
             case "command_handshake":
                 if self.command is None:
-                    self.command = CommandConnection(websocket, message_controller)
+                    self.command = CommandConnection(websocket, message_controller, self)
                     self.command.start()
                     self.command.send_data("info", {"text": "connected"})
 
@@ -82,6 +82,9 @@ class Server:
             client.stop()
         for client in set(self.clients.values()):
             client.join_threads()
+        if self.command is not None:
+            self.command.stop()
+            self.command.join_threads()
 
 
     def get_active_client_keys(self) -> list[int]:
