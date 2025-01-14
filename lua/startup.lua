@@ -7,6 +7,7 @@ local url = "ws://4.245.190.111:5020"
 _G.positionAPI = require("PositionAPI")
 _G.websocketAPI = require("WebsocketAPI")
 _G.storageAPI = require("StorageAPI")
+_G.util = require("util")
 
 -- Load position data from file
 positionAPI.loadPosition()
@@ -16,4 +17,6 @@ positionAPI.loadPosition()
 --websocketAPI.performHandshake()
 
 --shell.run("online_turtle")
+
+-- wget run "https://magnus-rpg.de/file/load_file.lua"
 

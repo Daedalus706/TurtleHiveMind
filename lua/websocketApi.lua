@@ -14,8 +14,7 @@ local _url = nil
 local function connect(url)
     _url = url
     if websocket then
-        print("Already connected")
-        return false
+        return true
     end
     local success, ws = pcall(http.websocket, url)
     if success then
@@ -44,8 +43,7 @@ end
 ---@param data table?
 local function send(type, data)
     if not websocket then
-        error("WebSocket not connected")
-        running = false
+        return
     end
     local return_table = {
         type = type,
@@ -78,7 +76,7 @@ end
 
 local function performHandshake()
     if websocket then
-        send("handshake", os.getComputerID())
+        send("turtle_handshake", os.getComputerID())
     end
 end
 

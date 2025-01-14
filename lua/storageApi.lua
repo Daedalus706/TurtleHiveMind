@@ -67,9 +67,35 @@ local function clearSlot(slot)
 end
 
 
+--- selects the specified Item, if present
+---@return boolean sucess
+---@param itemName string
+local function selectItem(itemName)
+    for i = 1, 16, 1 do
+        turtle.select(i)
+        local detail = turtle.getItemDetail()
+        if detail and detail.name == itemName then
+            return true
+        end
+    end
+    return false
+end
+
+
+--- checks if the specified item is selected
+---@return boolean isSelected
+---@param itemName string
+local function isSelected(itemName)
+    local detail = turtle.getItemDetail(turtle.getSelectedSlot())
+    if detail and detail.name == itemName then
+        return true
+    end
+    return false
+end
+
 ---If a chest is st the specified chest, the Items will be moved to the chest
 ---@param side string top, bottom, front
----@return table successState {success = boolean, transferCount = number}
+---@return table successState 0 = success, 1 = side not found
 local function dropAllItems(side)
     local transferCount = 0
     local drop = nil
@@ -81,7 +107,7 @@ local function dropAllItems(side)
     elseif side == "bottom" then
         drop = turtle.dropDown
     else
-        return {success = false, transferCount = 0}
+        return {1, transferCount}
     end
 
     for i = 1, 16, 1 do
@@ -92,7 +118,7 @@ local function dropAllItems(side)
         end
     end
 
-    return {success = true, transferCount = transferCount}
+    return {0, transferCount}
 
 end
 
@@ -118,11 +144,84 @@ local function getChestSize(side)
 end
 
 
+---@param side string top, bottom, front
+---@param itemName string? the name of the item that should fit in the chest, leave blank or nil if no specific item is required
+---@param itemLimit number? default 64, if an item can't be stacked or the stack size is not 64 (like 16) you can provide the appropriate stacksize
+---@return table success {success = number, transferCount = number} 0 = success, 1 = wrong siden name
+local function spaceForItemInChest(side, itemName, itemLimit)
+    if not itemLimit then
+        itemLimit = 64
+    end
+    -- check if the peripheral is present
+    local chest = peripheral.wrap(side)
+    if not chest then
+        return {1, 0}
+    end
+
+    local space = 0
+    local content = chest.list()
+    for i = 1, #content, 1 do
+        if not content[i] then
+            space = space + itemLimit
+        elseif itemName and content[i].name == itemName then
+            space = space + itemLimit - content[i]
+        end
+    end
+    return {0, space}
+end
+
+
+
+---Puts specific items into a chest.
+---@param side string top, bottom, front
+---@param itemName string
+---@param itemCount number? can be left empty if all items should be put into the chest
+---@return table successState {success = number, transferCount = number} 0 = success, 1 = item not found, 2 = not enough in store, 3 = not enough chest space, 5 = wrong siden name, 6 = peripheral not found
+local function pushItemToChest(side, itemName, itemCount)
+    if not itemCount then
+        itemCount = 64 * 16
+    end
+
+    -- check if the peripheral is present
+    local chest = peripheral.wrap(side)
+    if not chest then
+        return {6, 0}
+    end
+
+    -- select the function for the specified peripheral location
+    local drop = nil
+    if side == "top" then
+        drop = turtle.dropUp
+    elseif side == "front" then
+        drop = turtle.drop
+    elseif side == "bottom" then
+        drop = turtle.dropDown
+    else
+        return {5, 0}
+    end
+
+
+    local transferCount = 0
+    for i = 1, 16, 1 do
+        turtle.select(i)
+        local detail = turtle.getItemDetail()
+        if detail and detail.name == itemName then
+            local dropAmount = math.min(64, itemCount, detail.count)
+            drop(dropAmount)
+            transferCount = transferCount + dropAmount
+        end
+    end
+
+
+    return {0, transferCount}
+
+end
+
 ---Fetches specific items from a chest to the turtles inventory.
 ---@param itemName string
 ---@param itemCount number
 ---@param side string top, bottom, front
----@return table successState {success = number, transferCount = number} 0 = success, 1 = item not found, 2 = not enough in store, 3 = not enough inventory space, 4 = no space to move items, 5 = whong siden name, 6 = peripheral not found
+---@return table successState {success: number, transferCount: number} 0 = success, 1 = item not found, 2 = not enough in store, 3 = not enough inventory space, 4 = no space to move items, 5 = wrong siden name, 6 = peripheral not found
 local function pullItemFromChest(side, itemName, itemCount)
 
     -- check if the peripheral is present
@@ -330,7 +429,11 @@ return {
     findFirstEmptySlot = findFirstEmptySlot,
     spaceForItem = spaceForItem,
     clearSlot = clearSlot,
+    selectItem = selectItem,
+    isSelected = isSelected,
     dropAllItems = dropAllItems,
+    spaceForItemInChest = spaceForItemInChest,
+    pushItemToChest = pushItemToChest,
     pullItemFromChest = pullItemFromChest,
     getChestContent = getChestContent,
     getChestSize = getChestSize,
