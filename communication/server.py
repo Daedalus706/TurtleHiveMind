@@ -65,6 +65,7 @@ class Server:
                     self.command = CommandConnection(websocket, message_controller, self)
                     self.command.start()
                     self.command.send_data("info", {"text": "connected"})
+                    print(f"New command connection")
 
             case _:
                 pass
