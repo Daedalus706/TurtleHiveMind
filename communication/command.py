@@ -17,9 +17,10 @@ class CommandConnection:
                 return None
 
 
-    def __init__(self, websocket:ServerConnection, message_controller:MessageController):
+    def __init__(self, websocket:ServerConnection, message_controller:MessageController, server):
         self.websocket = websocket
         self.message_controller = message_controller
+        self.server = server
 
         self.stop_event = threading.Event()
         self.last_received = time.time()
@@ -58,6 +59,7 @@ class CommandConnection:
             self.stop_event.set()
             self.websocket.close()
             self.websocket = None
+            self.server.command = None
 
     def join_threads(self):
         self.input_thread.join()
