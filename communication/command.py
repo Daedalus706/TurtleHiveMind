@@ -97,7 +97,6 @@ class CommandConnection:
             self.websocket.close()
             self.websocket = None
             self.server.command = None
-            self.join_threads()
 
     def join_threads(self):
         self.input_thread.join()
