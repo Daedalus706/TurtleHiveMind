@@ -2,7 +2,14 @@
 
 class CommandController:
     def __init__(self):
-        pass
+        self.server = None
 
     def purge(self):
-        print("purge")
+        self.notify("Server purged!")
+
+    def notify(self, message):
+        if self.server is not None and self.server.command is not None:
+            self.server.command.notify(message)
+
+    def set_server(self, server):
+        self.server = server

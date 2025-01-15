@@ -117,3 +117,6 @@ class CommandConnection:
                 print(f"Connection to command closed while sending message")
                 self.stop()
             return False
+
+    def notify(self, text):
+        self.send_data("info", {"text": text})
