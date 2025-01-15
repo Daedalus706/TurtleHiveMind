@@ -13,7 +13,6 @@ from util import const
 class CommandConnection:
 
     def _create_event(self, event_type:str, payload:dict) -> ClientBaseEvent | None:
-        print(event_type, payload)
         match event_type:
             case _:
                 return None
@@ -61,8 +60,10 @@ class CommandConnection:
             if data_dict is None:
                 continue
 
-            if data_dict["type"] == "echo":
-                self.send_data("info", {"text":data_dict["payload"]["text"]})
+            if data_dict["type"] == "command":
+                command = data_dict["payload"]["text"].split(" ")[0]
+                if command == "echo":
+                    self.send_data("info", {"text":data_dict["payload"]["text"]})
                 continue
 
             new_event = self._create_event(data_dict["type"], data_dict["payload"])
@@ -82,6 +83,7 @@ class CommandConnection:
             self.websocket.close()
             self.websocket = None
             self.server.command = None
+            self.join_threads()
 
     def join_threads(self):
         self.input_thread.join()
