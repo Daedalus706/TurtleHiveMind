@@ -44,6 +44,10 @@ class CommandConnection:
             if data_dict is None:
                 continue
 
+            if data_dict["type"] == "echo":
+                self.send_data("info", data_dict["payload"]["text"])
+                continue
+
             new_event = self._create_event(data_dict["type"], data_dict["payload"])
 
             if new_event is None:
