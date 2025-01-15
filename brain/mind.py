@@ -1,10 +1,11 @@
 import time
-from controller import MessageController
+
+from controller import MessageController, CommandController
 
 
 class Mind:
 
-    def __init__(self, message_controller:MessageController) -> None:
+    def __init__(self, message_controller:MessageController, command_controller:CommandController) -> None:
         self.message_controller = message_controller
 
     def update(self):
