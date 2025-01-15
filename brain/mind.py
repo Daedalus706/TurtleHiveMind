@@ -12,4 +12,3 @@ class Mind:
         for event in self.message_controller.get_events():
             print(event)
         sent_to = self.message_controller.broadcast_message("empty", None)
-        print("broadcast message to", sent_to)
