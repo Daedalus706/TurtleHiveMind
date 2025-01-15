@@ -7,6 +7,8 @@ from event import *
 from websockets import *
 from websockets.sync.server import ServerConnection
 
+from util import const
+
 
 class CommandConnection:
 
@@ -26,7 +28,22 @@ class CommandConnection:
         self.last_received = time.time()
 
         self.input_thread = threading.Thread(target=self._input_handler, daemon=True)
+        self.heartbeat_thread = threading.Thread(target=self._heartbeat_worker, daemon=True)
 
+    def _heartbeat_worker(self):
+        while self.active():
+            if self.last_received + const.PING_INTERVAL < time.time():
+                self.ping()
+                time.sleep(1)
+            if self.last_received + const.TIMEOUT_INTERVAL < time.time():
+                print(f"Timeout on command")
+                self.stop()
+
+    def ping(self):
+        self.send_data("ping", None)
+
+    def pong(self):
+        self.send_data("pong", None)
 
     def _input_handler(self):
         while self.active():
@@ -57,6 +74,7 @@ class CommandConnection:
 
     def start(self):
         self.input_thread.start()
+        self.heartbeat_thread.start()
 
     def stop(self):
         if self.active():
@@ -67,6 +85,7 @@ class CommandConnection:
 
     def join_threads(self):
         self.input_thread.join()
+        self.heartbeat_thread.join()
 
     def active(self) -> bool:
         return not self.stop_event.is_set()
