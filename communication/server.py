@@ -22,6 +22,7 @@ class Server:
     def __init__(self, message_controller:MessageController, command_controller:CommandController, host, port):
         message_controller.server = self
         self.command_controller = command_controller
+        self.command_controller.set_server(self)
         self.host = host
         self.port = port
 
