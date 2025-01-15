@@ -2,7 +2,7 @@ import json
 import time
 import threading
 
-from controller import MessageController
+from controller import MessageController, CommandController
 from event import *
 from websockets import *
 from websockets.sync.server import ServerConnection
@@ -18,10 +18,13 @@ class CommandConnection:
                 return None
 
 
-    def __init__(self, websocket:ServerConnection, message_controller:MessageController, server):
+    def __init__(self, websocket:ServerConnection, message_controller:MessageController, command_controller:CommandController, server):
         self.websocket = websocket
         self.message_controller = message_controller
+        self.command_controller = command_controller
         self.server = server
+
+        self.await_confirm_function = None
 
         self.stop_event = threading.Event()
         self.last_received = time.time()
@@ -62,9 +65,20 @@ class CommandConnection:
 
             if data_dict["type"] == "command":
                 command = data_dict["payload"]["text"].split(" ")[0]
+
+                if self.await_confirm_function is not None:
+                    if command == "confirm":
+                        self.await_confirm_function()
+                    else:
+                        self.await_confirm_function = None
+
                 if command == "echo":
                     self.send_data("info", {"text":data_dict["payload"]["text"]})
-                continue
+                    continue
+
+                if command == "purge":
+                    self.send_data("info", {"text": "Do you really want to purge? Please 'confirm'"})
+                    self.await_confirm_function = self.command_controller.purge
 
             new_event = self._create_event(data_dict["type"], data_dict["payload"])
 

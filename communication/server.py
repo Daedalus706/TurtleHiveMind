@@ -7,7 +7,7 @@ from websockets.sync.server import ServerConnection, serve
 from websockets.sync.server import Server as SocketServer
 
 from event import *
-from controller import MessageController
+from controller import MessageController, CommandController
 from communication.client import ClientConnection
 from communication.command import CommandConnection
 
@@ -19,8 +19,9 @@ class Server:
         socket_server.serve_forever()
 
 
-    def __init__(self, message_controller:MessageController, host, port):
+    def __init__(self, message_controller:MessageController, command_controller:CommandController, host, port):
         message_controller.server = self
+        self.command_controller = command_controller
         self.host = host
         self.port = port
 
@@ -62,7 +63,7 @@ class Server:
 
             case "command_handshake":
                 if self.command is None:
-                    self.command = CommandConnection(websocket, message_controller, self)
+                    self.command = CommandConnection(websocket, message_controller, self.command_controller, self)
                     self.command.start()
                     self.command.send_data("info", {"text": "connected"})
                     print(f"New command connection")

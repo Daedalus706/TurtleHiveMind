@@ -1,2 +1,3 @@
 from .messge_controller import MessageController
 from .crafting_controller import CraftingController
+from .command_controller import CommandController
