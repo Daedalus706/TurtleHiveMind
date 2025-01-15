@@ -86,7 +86,6 @@ class Server:
             client.join_threads()
         if self.command is not None:
             self.command.stop()
-            self.command.join_threads()
 
 
     def get_active_client_keys(self) -> list[int]:
