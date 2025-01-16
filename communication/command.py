@@ -74,6 +74,7 @@ class CommandConnection:
                     if command == "confirm":
                         self.logger.debug('Command received confirmation')
                         self.await_confirm_function()
+                        self.await_confirm_function = None
                     else:
                         self.logger.debug('Command confirmation aborted')
                         self.send_data("info", {"text": "confirmation aborted"})
