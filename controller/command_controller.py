@@ -8,10 +8,10 @@ class CommandController:
     def __new__(cls, *args, **kwargs):
         if CommandController._instance is None:
             CommandController._instance = super().__new__(cls)
-            print("new CommandController")
         return CommandController._instance
 
     def __init__(self):
+        print("init")
         self.logger = logging.getLogger(__name__)
         self.server = None
 
