@@ -22,6 +22,7 @@ class Server:
 
     def __init__(self, host, port):
         self.logger = logging.getLogger(__name__)
+        self.command_controller = CommandController()
         message_controller = MessageController()
         message_controller.server = self
         self.command_controller = CommandController()
@@ -63,7 +64,8 @@ class Server:
                 new_event = NewTurtleConnectionEvent(turtle_id)
                 message_controller.add_event(new_event)
 
-                self.logger.info(f"New client connection with id {turtle_id}")
+                self.logger.info(f"New turtle connection with id {turtle_id}")
+                self.command_controller.notify(f"turtle_{turtle_id} connected")
                 self.clients[turtle_id].stop_event.wait()
 
             case "command_handshake":
@@ -80,7 +82,7 @@ class Server:
 
     def start(self):
         self.server_thread.start()
-        print("Server started")
+        self.logger.info("Server started")
 
 
     def stop(self):
