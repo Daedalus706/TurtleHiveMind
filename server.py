@@ -21,6 +21,7 @@ def register_logger(log_level):
             logging.StreamHandler()
         ]
     )
+    logging.getLogger("websockets").setLevel(logging.CRITICAL)
 
 def load_config() -> configparser.ConfigParser:
     config_parser = configparser.ConfigParser()
