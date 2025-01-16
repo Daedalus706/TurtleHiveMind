@@ -61,7 +61,7 @@ class Recipe:
                 return CraftingRecipe(item_name, pattern, items, count)
 
             case _:
-                return None
+                return NoRecipe(item_name)
 
     def __init__(self, item_name:str, ):
         self.item_name = item_name
@@ -71,6 +71,10 @@ class Recipe:
 
     def __repr__(self):
         return f"{self.to_dict()}"
+
+class NoRecipe(Recipe):
+    def __init__(self, item_name:str):
+        super().__init__(item_name)
 
 class CraftingRecipe(Recipe):
     def __init__(self, item_name:str, pattern:list, item_group_list, count:int):
