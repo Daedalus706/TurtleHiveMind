@@ -81,9 +81,9 @@ local function performHandshake()
 end
 
 
-local function sendError(message)
+local function sendError(message, command)
     if websocket then
-        send("error", message)
+        send("error", {message=message, command=command})
     end
 end
 
