@@ -15,11 +15,15 @@ class MessageController:
         self.server = None
 
     def send_message(self, turtle_id:int, message_type:str, data:dict|None) -> bool:
+        if self.server is None:
+            return False
         if turtle_id not in self.server.get_active_client_keys():
             return False
         return self.server.get_client(turtle_id).send_data(message_type, data)
 
     def broadcast_message(self, message_type:str, data:dict|None) -> set:
+        if self.server is None:
+            return set()
         message_sent = set()
         for turtle_id in self.server.get_active_client_keys():
             if self.server.get_client(turtle_id).send_data(message_type, data):
