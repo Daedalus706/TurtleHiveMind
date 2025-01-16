@@ -16,7 +16,6 @@ class CommandController:
             return
         self._init = True
 
-        print("init")
         self.logger = logging.getLogger(__name__)
         self.server = None
 
