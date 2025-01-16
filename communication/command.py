@@ -145,7 +145,9 @@ class CommandConnection:
             return False
 
     def notify(self, text):
+        self.logger.debug("server notify")
         self.send_data("info", {"text": text})
 
     def turtle_answer(self, turtle_id:int, text):
+        self.logger.debug("turtle_answer")
         self.send_data(f"turtle_{turtle_id}", {"text": text})
