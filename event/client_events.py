@@ -16,3 +16,10 @@ class TurtleInfoEvent(ClientBaseEvent):
     direction: None|int
     fuel: None|int
     inventory: None|dict
+
+class ItemInfoEvent(ClientBaseEvent):
+    slot: int
+    name: str
+    count: int
+    group: list[str]
+    other: dict
