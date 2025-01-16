@@ -27,13 +27,12 @@ class CommandController:
         ModelController().purge()
         self.notify("Server purged!")
 
-    def notify(self, message):
+    def notify(self, message:str):
         if self.server is not None and self.server.command is not None:
             self.server.command.notify(message)
 
     def set_server(self, server):
         self.server = server
-        self.logger.debug(f"set_server command: {self.server=}")
 
     def connect_turtle(self, turtle_id):
         self.notify(f"turtle_{turtle_id} connected")
