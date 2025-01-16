@@ -17,8 +17,10 @@ class TurtleInfoEvent(ClientBaseEvent):
     fuel: None|int
     inventory: None|dict
 
+@dataclass
 class ItemInfoEvent(ClientBaseEvent):
-    name: str
-    count: int
-    max_count: int
-    tags: dict
+    slot: None|int
+    name: None|str
+    count: None|int
+    max_count: None|int
+    tags: None|dict
