@@ -145,3 +145,6 @@ class CommandConnection:
 
     def notify(self, text):
         self.send_data("info", {"text": text})
+
+    def turtle_answer(self, turtle_id:int, text):
+        self.send_data(f"turtle_{turtle_id}", {"text": text})
