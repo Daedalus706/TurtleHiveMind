@@ -11,10 +11,11 @@ class CommandController:
         return cls._instance
 
     def __init__(self):
-        if self._instance is None:
-            print("init")
-            self.logger = logging.getLogger(__name__)
-            self.server = None
+        if self._instance is not None:
+            return
+        print("init")
+        self.logger = logging.getLogger(__name__)
+        self.server = None
 
     def purge(self):
         ModelController().purge()
