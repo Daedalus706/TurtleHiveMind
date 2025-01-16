@@ -6,6 +6,7 @@ import os
 
 class CraftingController:
     _instance = None
+    _init = False
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -13,9 +14,12 @@ class CraftingController:
         return cls._instance
 
     def __init__(self):
-        if not self._instance:
-            self.items = {}
-            self.groups = map_groups()
+        if self._init:
+            return
+        self._init = True
+
+        self.items = {}
+        self.groups = map_groups()
 
     def add_item(self, item:model.Item):
         self.items[item.name] = item

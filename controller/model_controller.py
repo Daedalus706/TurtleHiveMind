@@ -6,6 +6,7 @@ from util import const
 
 class ModelController:
     _instance = None
+    _init = False
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -22,9 +23,12 @@ class ModelController:
                 ModelController.create_save_folder(current_path, subfolders)
 
     def __init__(self):
-        if not self._instance:
-            self.logger = logging.getLogger(__name__)
-            ModelController.create_save_folder('./', const.SAVES_STRUCTURE)
+        if self._init:
+            return
+        self._init = True
+
+        self.logger = logging.getLogger(__name__)
+        ModelController.create_save_folder('./', const.SAVES_STRUCTURE)
 
     def purge(self):
         self.logger.info("Purge Model")

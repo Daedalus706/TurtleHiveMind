@@ -4,6 +4,7 @@ from event import *
 
 class MessageController:
     _instance = None
+    _init = False
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -11,9 +12,12 @@ class MessageController:
         return cls._instance
 
     def __init__(self):
-        if not self._instance:
-            self.event_queue = Queue()
-            self.server = None
+        if self._init:
+            return
+        self._init = True
+
+        self.event_queue = Queue()
+        self.server = None
 
     def send_message(self, turtle_id:int, message_type:str, data:dict|None) -> bool:
         if self.server is None:
