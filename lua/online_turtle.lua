@@ -13,6 +13,19 @@ local function sendTurtleInfo()
 end
 
 
+local function sendItemInfo(slot)
+    local info = turtle.getItemDetail(slot, true)
+    local data = {
+        slot = slot,
+        name = info.name,
+        count = info.count,
+        max_count = info.max_count,
+        tags = info.tags
+    }
+    websocketAPI.send("item_info", data)
+end
+
+
 local function messageHandler(data)
     handled_messages = handled_messages + 1
     print("handled_messages: " .. handled_messages .. "type: " .. tostring(data.type))
@@ -27,15 +40,16 @@ local function messageHandler(data)
                 sendTurtleInfo()
             end
 
+            if data.type == "request_item_info" then
+                sendItemInfo(data.payload.slot)
+            end
+
         end
     end
 end
 
 
 local function setup()
-    local info = turtle.getItemDetail(1, true)
-    info.slot = turtle.getSelectedSlot()
-    websocketAPI.send("item_info", info)
 end
 
 local function main()
