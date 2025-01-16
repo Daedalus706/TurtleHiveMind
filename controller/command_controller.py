@@ -1,4 +1,4 @@
-
+from .model_controller import ModelController
 
 class CommandController:
     _instance = None
@@ -12,6 +12,7 @@ class CommandController:
         self.server = None
 
     def purge(self):
+        ModelController().purge()
         self.notify("Server purged!")
 
     def notify(self, message):
