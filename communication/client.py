@@ -3,7 +3,7 @@ import logging
 import time
 import threading
 
-from controller import MessageController
+from controller import MessageController, CommandController
 from event import *
 from util import const
 from websockets import *
@@ -16,10 +16,11 @@ logger = logging.getLogger(__name__)
 class ClientConnection:
 
     def _create_event(self, event_type:str, payload:dict) -> ClientBaseEvent | None:
+        new_event = None
         match event_type:
 
             case "turtle_info":
-                return TurtleInfoEvent(
+                new_event = TurtleInfoEvent(
                     turtle_id=self.turtle_id,
                     position=payload["position"] if "position" in payload else None,
                     direction=payload["direction"] if "direction" in payload else None,
@@ -28,7 +29,7 @@ class ClientConnection:
                 )
 
             case "item_info":
-                return ItemInfoEvent(
+                new_event = ItemInfoEvent(
                     turtle_id=self.turtle_id,
                     slot=payload["slot"] if "slot" in payload else None,
                     name=payload["name"] if "name" in payload else None,
@@ -40,12 +41,18 @@ class ClientConnection:
             case _:
                 return None
 
+        if self.command_controller.is_awaiting_answer(self.turtle_id):
+            self.command_controller.answer(self.turtle_id, new_event)
+
+        return new_event
+
 
 
     def __init__(self, turtle_id:int, websocket:ServerConnection):
         self.turtle_id = turtle_id
         self.websocket = websocket
         self.message_controller = MessageController()
+        self.command_controller = CommandController()
 
         self.stop_event = threading.Event()
         self.last_received = time.time()
