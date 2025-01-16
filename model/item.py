@@ -1,7 +1,7 @@
 import zipfile
 import json
 
-from model import Recipe
+from model import Recipe, NoRecipe
 
 
 class Item:
@@ -10,10 +10,12 @@ class Item:
         self.group = None
         self.recipe = None
 
-    def get_recipe(self):
+    def get_recipe(self) -> Recipe|None:
         if self.recipe is not None:
             return self.recipe
         self.recipe = Recipe.create_recipe(self.name)
+        if isinstance(self.recipe, NoRecipe):
+            return None
         return self.recipe
 
     def get_group(self):
