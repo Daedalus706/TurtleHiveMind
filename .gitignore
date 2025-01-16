@@ -173,3 +173,4 @@ cython_debug/
 # User defined
 test.py
 logs/
+settings.cfg
