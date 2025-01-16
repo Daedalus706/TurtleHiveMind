@@ -1,4 +1,5 @@
 import functools
+import logging
 import threading
 import json
 
@@ -20,6 +21,7 @@ class Server:
 
 
     def __init__(self, host, port):
+        self.logger = logging.getLogger(__name__)
         message_controller = MessageController()
         message_controller.server = self
         self.command_controller = CommandController()
@@ -46,10 +48,11 @@ class Server:
 
 
     def websocket_handler(self, websocket:ServerConnection, message_controller:MessageController):
+        client_ip, client_port = websocket.remote_address()
         try:
             handshake_data_dict = json.loads(websocket.recv())
         except ConnectionClosed:
-            print("Connection Error: New connection failed to handshake")
+            self.logger.error(f"New connection failed to handshake. {client_ip=}")
             return
 
         match handshake_data_dict["type"]:
@@ -60,7 +63,7 @@ class Server:
                 new_event = NewTurtleConnectionEvent(turtle_id)
                 message_controller.add_event(new_event)
 
-                print(f"New client connection with id {turtle_id}")
+                self.logger.info(f"New client connection with id {turtle_id}")
                 self.clients[turtle_id].stop_event.wait()
 
             case "command_handshake":
@@ -68,7 +71,7 @@ class Server:
                     self.command = CommandConnection(websocket, self)
                     self.command.start()
                     self.command.send_data("info", {"text": "connected"})
-                    print(f"New command connection")
+                    self.logger.info(f"New command connection")
                     self.command.stop_event.wait()
 
             case _:
