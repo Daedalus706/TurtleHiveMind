@@ -11,8 +11,9 @@ class MessageController:
         return cls._instance
 
     def __init__(self):
-        self.event_queue = Queue()
-        self.server = None
+        if not self._instance:
+            self.event_queue = Queue()
+            self.server = None
 
     def send_message(self, turtle_id:int, message_type:str, data:dict|None) -> bool:
         if self.server is None:

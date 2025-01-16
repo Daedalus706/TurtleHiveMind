@@ -6,14 +6,14 @@ class CommandController:
     _instance = None
 
     def __new__(cls, *args, **kwargs):
-        if CommandController._instance is None:
-            CommandController._instance = super().__new__(cls)
-        return CommandController._instance
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     def __init__(self):
-        print("init")
-        self.logger = logging.getLogger(__name__)
-        self.server = None
+        if not self._instance:
+            self.logger = logging.getLogger(__name__)
+            self.server = None
 
     def purge(self):
         ModelController().purge()

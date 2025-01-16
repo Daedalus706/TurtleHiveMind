@@ -13,8 +13,9 @@ class CraftingController:
         return cls._instance
 
     def __init__(self):
-        self.items = {}
-        self.groups = map_groups()
+        if not self._instance:
+            self.items = {}
+            self.groups = map_groups()
 
     def add_item(self, item:model.Item):
         self.items[item.name] = item
