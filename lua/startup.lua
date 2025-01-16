@@ -13,10 +13,10 @@ _G.util = require("util")
 positionAPI.loadPosition()
 
 -- Connect to websocket
---websocketAPI.connect(url)
---websocketAPI.performHandshake()
+websocketAPI.connect(url)
+websocketAPI.performHandshake()
 
---shell.run("online_turtle")
+shell.run("online_turtle")
 
 -- wget run "https://magnus-rpg.de/file/load_file.lua"
 

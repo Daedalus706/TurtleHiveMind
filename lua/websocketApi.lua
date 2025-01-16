@@ -120,6 +120,7 @@ local function startListener(messageHandler)
             while running do
                 if not websocket then
                     websocket = attemptReconnect()
+                    print("got new websocket")
                 end
 
                 local successRecive, message = pcall(websocket.receive)
