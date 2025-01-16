@@ -103,6 +103,7 @@ class CommandConnection:
                     turtle_arguments = arguments[1:]
                     self.message_controller.send_command(turtle_id, turtle_command, parse_turtle_command(turtle_command, turtle_arguments))
                     self.command_controller.await_answer(turtle_id)
+                    self.logger.debug("received turtle command")
 
                 else:
                     new_event = self._create_event(data_dict["type"], data_dict["payload"])
@@ -134,7 +135,7 @@ class CommandConnection:
         if self.stop_event.is_set():
             return False
         try:
-            message = json.dumps({"payload": payload, "type": message_type})
+            message = json.dumps({"type": message_type, "payload": payload})
             self.websocket.send(message, text=True)
             return True
         except ConnectionClosed:
