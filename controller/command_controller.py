@@ -20,6 +20,7 @@ class CommandController:
 
     def notify(self, message):
         self.logger.debug(f"notify command: {message}")
+        self.logger.debug(f"{self.server=}, {self.server.command=}")
         if self.server is not None and self.server.command is not None:
             self.server.command.notify(message)
 
