@@ -71,7 +71,6 @@ class Server:
                 if self.command is None:
                     self.command = CommandConnection(websocket, self)
                     self.command.start()
-                    self.command.send_data("info", {"text": "connected"})
                     self.logger.info(f"New command connection")
                     self.command.stop_event.wait()
 
