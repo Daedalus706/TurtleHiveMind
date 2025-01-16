@@ -1,6 +1,8 @@
 import logging
 import os
 
+from util import const
+
 
 class ModelController:
     _instance = None
@@ -20,15 +22,8 @@ class ModelController:
                 ModelController.create_save_folder(current_path, subfolders)
 
     def __init__(self):
-        self.logger = logging.getLogger("ServerLogger")
-        self.saves_structure = {
-            "saves": {
-                "chunks": {},
-                "turtles": {},
-                "chests": {}
-            }
-        }
-        ModelController.create_save_folder('./', self.saves_structure)
+        self.logger = logging.getLogger(__name__)
+        ModelController.create_save_folder('./', const.SAVES_STRUCTURE)
 
     def purge(self):
         self.logger.info("Purge Model")
