@@ -4,6 +4,7 @@ from .model_controller import ModelController
 
 class CommandController:
     _instance = None
+    _init = False
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -11,11 +12,12 @@ class CommandController:
         return cls._instance
 
     def __init__(self):
-        if self._instance is not None:
+        if CommandController._init:
             return
         print("init")
         self.logger = logging.getLogger(__name__)
         self.server = None
+        CommandController._init = True
 
     def purge(self):
         ModelController().purge()
