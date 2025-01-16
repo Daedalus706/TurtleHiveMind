@@ -11,7 +11,7 @@ class CommandController:
         return cls._instance
 
     def __init__(self):
-        if not self._instance:
+        if self._instance is None:
             print("init")
             self.logger = logging.getLogger(__name__)
             self.server = None
