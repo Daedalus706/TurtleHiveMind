@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 import threading
 
@@ -8,6 +9,9 @@ from util import const
 from websockets import *
 from websockets.sync.server import ServerConnection
 
+
+
+logger = logging.getLogger(__name__)
 
 class ClientConnection:
 
@@ -48,7 +52,7 @@ class ClientConnection:
                 self.ping()
                 time.sleep(1)
             if self.last_received + const.TIMEOUT_INTERVAL < time.time():
-                print(f"Timeout on client {self.turtle_id}")
+                logger.info(f"Timeout on client {self.turtle_id}")
                 self.stop()
 
     def _input_handler(self):
@@ -61,7 +65,7 @@ class ClientConnection:
                     data_dict = json.loads(data)
             except ConnectionClosed:
                 if self.active():
-                    print(f"Connection to turtle_{self.turtle_id} closed while awaiting input")
+                    logger.info(f"Connection to turtle_{self.turtle_id} closed")
                     self.stop()
 
             if data_dict is None:
@@ -110,6 +114,6 @@ class ClientConnection:
             return True
         except ConnectionClosed:
             if self.active():
-                print(f"Connection to turtle_{self.turtle_id} closed while sending message")
+                logger.info(f"Connection to turtle_{self.turtle_id} closed")
                 self.stop()
             return False
