@@ -23,6 +23,9 @@ class ClientConnection:
                     inventory=payload["inventory"] if "inventory" in payload else None
                 )
 
+            case "item_info":
+                print(payload)
+
             case _:
                 return None
 
