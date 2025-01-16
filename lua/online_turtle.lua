@@ -41,7 +41,11 @@ local function messageHandler(data)
             end
 
             if data.type == "request_item_info" then
-                sendItemInfo(data.payload.slot)
+                if data.payload.slot then
+                    sendItemInfo(data.payload.slot)
+                else
+                    websocketAPI.error("missing parameter: 'slot'", data.type)
+                end
             end
 
         end
