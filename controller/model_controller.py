@@ -33,7 +33,6 @@ class ModelController:
     def purge(self):
         self.logger.info("Purge Model")
         tree = list(os.walk("./saves"))
-        print(tree)
         for root, dirs, files in tree:
             for file in files:
                 file_path = os.path.join(root, file)
