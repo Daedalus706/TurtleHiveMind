@@ -67,7 +67,7 @@ class CommandConnection:
                 continue
 
             if data_dict["type"] == "command":
-                command = data_dict["payload"]["text"].split(" ")[0]
+                command = data_dict["payload"]["command"]
 
                 if self.await_confirm_function is not None:
                     if command == "confirm":
@@ -75,11 +75,12 @@ class CommandConnection:
                         self.await_confirm_function()
                     else:
                         self.logger.debug('Command confirmation aborted')
+                        self.send_data("info", {"text": "confirmation aborted"})
                         self.await_confirm_function = None
 
                 if command == "echo":
                     self.logger.debug(f'Command echo {data_dict["payload"]["text"]}')
-                    self.send_data("info", {"text":data_dict["payload"]["text"]})
+                    self.send_data("info", {"text":" ".join(data_dict["payload"]["arguments"])})
                     continue
 
                 if command == "purge":
