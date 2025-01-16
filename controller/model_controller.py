@@ -22,8 +22,9 @@ class ModelController:
                 ModelController.create_save_folder(current_path, subfolders)
 
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
-        ModelController.create_save_folder('./', const.SAVES_STRUCTURE)
+        if not self._instance:
+            self.logger = logging.getLogger(__name__)
+            ModelController.create_save_folder('./', const.SAVES_STRUCTURE)
 
     def purge(self):
         self.logger.info("Purge Model")
