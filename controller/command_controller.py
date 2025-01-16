@@ -54,6 +54,7 @@ class CommandController:
         if self.server is None or self.server.command is None:
             return
         if turtle_id in self.awaiting_answer:
+            self.logger.debug("received turtle answer")
             event_data = asdict(event)
             self.server.command.turtle_answer(turtle_id, json.dumps(event_data))
             del self.awaiting_answer[turtle_id]
