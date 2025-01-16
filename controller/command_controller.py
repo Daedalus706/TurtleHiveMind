@@ -14,10 +14,11 @@ class CommandController:
     def __init__(self):
         if self._init:
             return
+        self._init = True
+
         print("init")
         self.logger = logging.getLogger(__name__)
         self.server = None
-        self._init = True
 
     def purge(self):
         ModelController().purge()
