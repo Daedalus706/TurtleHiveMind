@@ -1,3 +1,5 @@
+import logging
+
 from .model_controller import ModelController
 
 class CommandController:
@@ -9,6 +11,7 @@ class CommandController:
         return cls._instance
 
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
         self.server = None
 
     def purge(self):
@@ -16,6 +19,7 @@ class CommandController:
         self.notify("Server purged!")
 
     def notify(self, message):
+        self.logger.debug(f"notify command: {message}")
         if self.server is not None and self.server.command is not None:
             self.server.command.notify(message)
 
