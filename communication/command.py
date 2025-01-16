@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 import threading
 
@@ -19,6 +20,8 @@ class CommandConnection:
 
 
     def __init__(self, websocket:ServerConnection, server):
+        self.logger = logging.getLogger(__name__)
+
         self.websocket = websocket
         self.message_controller = MessageController()
         self.command_controller = CommandController()
@@ -38,7 +41,7 @@ class CommandConnection:
                 self.ping()
                 time.sleep(1)
             if self.last_received + const.TIMEOUT_INTERVAL < time.time():
-                print(f"Timeout on command")
+                self.logger.info("Command Timeout")
                 self.stop()
 
     def ping(self):
@@ -57,7 +60,7 @@ class CommandConnection:
                     data_dict = json.loads(data)
             except ConnectionClosed:
                 if self.active():
-                    print(f"Connection to command closed while awaiting input")
+                    self.logger.info(f"Connection to command closed")
                     self.stop()
 
             if data_dict is None:
@@ -68,17 +71,21 @@ class CommandConnection:
 
                 if self.await_confirm_function is not None:
                     if command == "confirm":
+                        self.logger.debug('Command received confirmation')
                         self.await_confirm_function()
                     else:
+                        self.logger.debug('Command confirmation aborted')
                         self.await_confirm_function = None
 
                 if command == "echo":
+                    self.logger.debug(f'Command echo {data_dict["payload"]["text"]}')
                     self.send_data("info", {"text":data_dict["payload"]["text"]})
                     continue
 
                 if command == "purge":
                     self.send_data("info", {"text": "Do you really want to purge? Please 'confirm'"})
                     self.await_confirm_function = self.command_controller.purge
+                    continue
 
             new_event = self._create_event(data_dict["type"], data_dict["payload"])
 
@@ -114,7 +121,7 @@ class CommandConnection:
             return True
         except ConnectionClosed:
             if self.active():
-                print(f"Connection to command closed while sending message")
+                self.logger.info(f"Connection to command closed")
                 self.stop()
             return False
 
