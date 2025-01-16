@@ -26,6 +26,9 @@ class MessageController:
             return False
         return self.server.get_client(turtle_id).send_data(message_type, data)
 
+    def send_command(self, turtle_id:int, command:str, arguments:dict) -> bool:
+        return self.send_message(turtle_id, command, arguments)
+
     def broadcast_message(self, message_type:str, data:dict|None) -> set:
         if self.server is None:
             return set()
