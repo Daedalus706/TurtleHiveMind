@@ -18,8 +18,7 @@ class TurtleInfoEvent(ClientBaseEvent):
     inventory: None|dict
 
 class ItemInfoEvent(ClientBaseEvent):
-    slot: int
     name: str
     count: int
-    group: list[str]
-    other: dict
+    max_count: int
+    tags: dict
