@@ -23,10 +23,9 @@ class Server:
     def __init__(self, host, port):
         self.logger = logging.getLogger(__name__)
         self.command_controller = CommandController()
+        self.command_controller.set_server(self)
         message_controller = MessageController()
         message_controller.server = self
-        self.command_controller = CommandController()
-        self.command_controller.set_server(self)
         self.host = host
         self.port = port
 
