@@ -11,21 +11,26 @@ from websockets.sync.server import ServerConnection
 from util import const
 
 
-def parse_turtle_command(command:str, arguments:list[str]) -> dict:
-    match command:
-        case "request_turtle_info":
-            return {}
 
-        case "request_item_info":
-            return {'slot': int(arguments[0])}
 
 
 class CommandConnection:
 
-    def _create_event(self, event_type:str, payload:dict) -> ClientBaseEvent | None:
+    def _create_event(self, event_type:str, payload:dict) -> ClientBaseEvent|None:
         match event_type:
             case _:
                 return None
+
+    def parse_turtle_command(self, command: str, arguments: list[str]) -> dict|None:
+        match command:
+            case "request_turtle_info":
+                return {}
+
+            case "request_item_info":
+                if len(arguments) == 0:
+                    self.command_controller.notify("error: missing argument 'slot'")
+                    return None
+                return {'slot': int(arguments[0])}
 
 
     def __init__(self, websocket:ServerConnection, server):
@@ -98,12 +103,14 @@ class CommandConnection:
                     self.await_confirm_function = self.command_controller.purge
 
                 elif "turtle_" in command:
+                    self.logger.debug("received turtle command")
                     turtle_id = int(command.split("turtle_")[1])
                     turtle_command = arguments[0]
                     turtle_arguments = arguments[1:]
-                    self.message_controller.send_command(turtle_id, turtle_command, parse_turtle_command(turtle_command, turtle_arguments))
-                    self.command_controller.await_answer(turtle_id)
-                    self.logger.debug("received turtle command")
+                    send_command = self.parse_turtle_command(turtle_command, turtle_arguments)
+                    if send_command is not None:
+                        self.message_controller.send_command(turtle_id, turtle_command, send_command)
+                        self.command_controller.await_answer(turtle_id)
 
                 else:
                     new_event = self._create_event(data_dict["type"], data_dict["payload"])
@@ -144,7 +151,7 @@ class CommandConnection:
                 self.stop()
             return False
 
-    def notify(self, text):
+    def notify(self, text:str):
         self.logger.debug("server notify")
         self.send_data("info", {"text": text})
 
