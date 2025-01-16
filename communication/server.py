@@ -43,8 +43,8 @@ class Server:
     def add_connection(self, turtle_id, websocket):
         new_connection = ClientConnection(turtle_id, websocket)
         new_connection.start()
-        self.clients[turtle_id] = new_connection
         new_connection.send_data("request_turtle_info", None)
+        self.clients[turtle_id] = new_connection
 
 
     def websocket_handler(self, websocket:ServerConnection, message_controller:MessageController):
