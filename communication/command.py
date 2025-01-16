@@ -11,6 +11,15 @@ from websockets.sync.server import ServerConnection
 from util import const
 
 
+def parse_turtle_command(command:str, arguments:list[str]) -> dict:
+    match command:
+        case "request_turtle_info":
+            return {}
+
+        case "request_item_info":
+            return {'slot': int(arguments[0])}
+
+
 class CommandConnection:
 
     def _create_event(self, event_type:str, payload:dict) -> ClientBaseEvent | None:
@@ -83,19 +92,24 @@ class CommandConnection:
                 if command == "echo":
                     self.logger.debug(f'Command echo {" ".join(arguments)}')
                     self.send_data("info", {"text":" ".join(arguments)})
-                    continue
 
-                if command == "purge":
+                elif command == "purge":
                     self.send_data("info", {"text": "Do you really want to purge? Please 'confirm'"})
                     self.await_confirm_function = self.command_controller.purge
-                    continue
 
-            new_event = self._create_event(data_dict["type"], data_dict["payload"])
+                elif "turtle_" in command:
+                    turtle_id = int(command.split("turtle_")[1])
+                    turtle_command = arguments[0]
+                    turtle_arguments = arguments[1:]
+                    self.message_controller.send_command(turtle_id, turtle_command, parse_turtle_command(turtle_command, turtle_arguments))
 
-            if new_event is None:
-                continue
+                else:
+                    new_event = self._create_event(data_dict["type"], data_dict["payload"])
 
-            self.message_controller.add_event(new_event)
+                    if new_event is None:
+                        continue
+
+                    self.message_controller.add_event(new_event)
 
     def start(self):
         self.input_thread.start()
