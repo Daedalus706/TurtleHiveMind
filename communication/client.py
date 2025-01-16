@@ -16,8 +16,14 @@ logger = logging.getLogger(__name__)
 class ClientConnection:
 
     def _create_event(self, event_type:str, payload:dict) -> ClientBaseEvent | None:
-        new_event = None
         match event_type:
+
+            case 'error':
+                new_event = TurtleError(
+                    turtle_id=self.turtle_id,
+                    message=payload['message'] if 'message' in payload else None,
+                    command=payload['command'] if 'command' in payload else None
+                )
 
             case "turtle_info":
                 new_event = TurtleInfoEvent(
