@@ -28,10 +28,10 @@ class ClientConnection:
 
 
 
-    def __init__(self, turtle_id:int, websocket:ServerConnection, message_controller:MessageController):
+    def __init__(self, turtle_id:int, websocket:ServerConnection):
         self.turtle_id = turtle_id
         self.websocket = websocket
-        self.message_controller = message_controller
+        self.message_controller = MessageController()
 
         self.stop_event = threading.Event()
         self.last_received = time.time()

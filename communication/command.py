@@ -18,10 +18,10 @@ class CommandConnection:
                 return None
 
 
-    def __init__(self, websocket:ServerConnection, message_controller:MessageController, command_controller:CommandController, server):
+    def __init__(self, websocket:ServerConnection, server):
         self.websocket = websocket
-        self.message_controller = message_controller
-        self.command_controller = command_controller
+        self.message_controller = MessageController()
+        self.command_controller = CommandController()
         self.server = server
 
         self.await_confirm_function = None

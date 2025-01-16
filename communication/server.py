@@ -19,9 +19,10 @@ class Server:
         socket_server.serve_forever()
 
 
-    def __init__(self, message_controller:MessageController, command_controller:CommandController, host, port):
+    def __init__(self, host, port):
+        message_controller = MessageController()
         message_controller.server = self
-        self.command_controller = command_controller
+        self.command_controller = CommandController()
         self.command_controller.set_server(self)
         self.host = host
         self.port = port
@@ -37,8 +38,8 @@ class Server:
         self.server_thread = threading.Thread(target=Server.server_worker, args=(self.socket_server,), daemon=True)
 
 
-    def add_connection(self, turtle_id, websocket, message_controller):
-        new_connection = ClientConnection(turtle_id, websocket, message_controller)
+    def add_connection(self, turtle_id, websocket):
+        new_connection = ClientConnection(turtle_id, websocket)
         new_connection.start()
         self.clients[turtle_id] = new_connection
         new_connection.send_data("request_turtle_info", None)
@@ -54,7 +55,7 @@ class Server:
         match handshake_data_dict["type"]:
             case "turtle_handshake":
                 turtle_id = handshake_data_dict["payload"]
-                self.add_connection(turtle_id, websocket, message_controller)
+                self.add_connection(turtle_id, websocket)
 
                 new_event = NewTurtleConnectionEvent(turtle_id)
                 message_controller.add_event(new_event)
@@ -64,7 +65,7 @@ class Server:
 
             case "command_handshake":
                 if self.command is None:
-                    self.command = CommandConnection(websocket, message_controller, self.command_controller, self)
+                    self.command = CommandConnection(websocket, self)
                     self.command.start()
                     self.command.send_data("info", {"text": "connected"})
                     print(f"New command connection")
