@@ -64,9 +64,9 @@ class Server:
                 message_controller.add_event(new_event)
 
                 self.logger.info(f"New connection with turtle_{turtle_id}")
-                self.command_controller.notify(f"turtle_{turtle_id} connected")
+                self.command_controller.connect_turtle(turtle_id)
                 self.clients[turtle_id].stop_event.wait()
-                self.command_controller.notify(f"turtle_{turtle_id} disconnected")
+                self.command_controller.disconnect_turtle(turtle_id)
 
             case "command_handshake":
                 if self.command is None:
