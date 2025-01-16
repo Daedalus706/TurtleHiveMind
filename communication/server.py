@@ -64,7 +64,7 @@ class Server:
                 new_event = NewTurtleConnectionEvent(turtle_id)
                 message_controller.add_event(new_event)
 
-                self.logger.info(f"New turtle connection with id {turtle_id}")
+                self.logger.info(f"New connection with turtle_{turtle_id}")
                 self.command_controller.notify(f"turtle_{turtle_id} connected")
                 self.clients[turtle_id].stop_event.wait()
 
