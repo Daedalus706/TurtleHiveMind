@@ -1,4 +1,6 @@
 import logging
+import os
+from datetime import datetime
 
 from controller import *
 from communication import Server
@@ -6,12 +8,14 @@ from brain import Mind
 
 
 def register_logger():
+    if "logs" not in os.listdir():
+        os.mkdir("logs")
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s[%(levelname)s] %(message)s",
         datefmt="[%Y-%m-%d %H:%M:%S]",
         handlers=[
-            logging.FileHandler("server.log"),
+            logging.FileHandler(f"logs/server{datetime.now().strftime('%Y-%m-%d')}.log"),
             logging.StreamHandler()
         ]
     )
