@@ -1,0 +1,33 @@
+import logging
+import os
+
+
+class ModelController:
+
+    @staticmethod
+    def create_save_folder(base_path, structure):
+        for folder, subfolders in structure.items():
+            current_path = os.path.join(base_path, folder)
+            if not os.path.exists(current_path):
+                os.makedirs(current_path)
+            if isinstance(subfolders, dict):
+                ModelController.create_save_folder(current_path, subfolders)
+
+    def __init__(self):
+        self.saves_structure = {
+            "saves": {
+                "chunks": {},
+                "turtles": {},
+                "chests": {}
+            }
+        }
+        ModelController.create_save_folder('./', self.saves_structure)
+
+    def purge(self):
+        for root, dirs, files in os.walk("./saves"):
+            for file in files:
+                file_path = os.path.join(root, file)
+                try:
+                    os.remove(file_path)
+                except Exception as e:
+                    print(f"Error while purging files {file_path}: {e}")
