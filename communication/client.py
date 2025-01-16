@@ -28,7 +28,14 @@ class ClientConnection:
                 )
 
             case "item_info":
-                print(payload)
+                return ItemInfoEvent(
+                    turtle_id=self.turtle_id,
+                    slot=payload["slot"] if "slot" in payload else None,
+                    name=payload["name"] if "name" in payload else None,
+                    count=payload["count"] if "count" in payload else None,
+                    max_count=payload["max_count"] if "max_count" in payload else None,
+                    tags=payload["tags"] if "tags" in payload else None
+                )
 
             case _:
                 return None
