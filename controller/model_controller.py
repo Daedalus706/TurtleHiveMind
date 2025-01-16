@@ -38,7 +38,7 @@ class ModelController:
             for file in files:
                 file_path = os.path.join(root, file)
                 try:
-                    os.remove(file_path)
                     self.logger.debug("Delete {}".format(file_path))
+                    os.remove(file_path)
                 except Exception as e:
                     self.logger.error(f"Error while purging files {file_path}: {e}")
