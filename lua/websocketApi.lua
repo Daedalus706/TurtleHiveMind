@@ -100,7 +100,7 @@ local function attemptReconnect()
             print("Successfully reconnected.")
             lastMessageTime = os.clock()
             newSocket.send(textutils.serialiseJSON({
-                type = "handshake",
+                type = "turtle_handshake",
                 payload = os.getComputerID()
             }))
             return newSocket
@@ -125,7 +125,7 @@ local function startListener(messageHandler)
 
                 local successRecive, message = pcall(websocket.receive)
                 if not successRecive then
-                    print(message)
+                    print("failed to receive message: " .. tostring(message))
                     websocket = nil
                 else
                     lastMessageTime = os.clock()
