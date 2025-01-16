@@ -110,7 +110,7 @@ class CommandConnection:
             return False
         try:
             message = json.dumps({"payload": payload, "type": message_type})
-            self.websocket.send(message, text=True)
+            self.websocket.send(message)#, text=True)
             return True
         except ConnectionClosed:
             if self.active():
