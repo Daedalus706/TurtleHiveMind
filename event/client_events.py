@@ -11,6 +11,11 @@ class NewTurtleConnectionEvent(ClientBaseEvent):
     pass
 
 @dataclass
+class TurtleError(ClientBaseEvent):
+    message: None|str
+    command: None|str
+
+@dataclass
 class TurtleInfoEvent(ClientBaseEvent):
     position: None|dict
     direction: None|int
