@@ -48,7 +48,7 @@ class Server:
 
 
     def websocket_handler(self, websocket:ServerConnection, message_controller:MessageController):
-        client_ip, client_port = websocket.remote_address()
+        client_ip, client_port = websocket.remote_address
         try:
             handshake_data_dict = json.loads(websocket.recv())
         except ConnectionClosed:
