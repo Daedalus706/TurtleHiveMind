@@ -33,7 +33,9 @@ end
 
 
 local function setup()
-    
+    local info = turtle.getItemDetail(1, true)
+    info.slot = turtle.getSelectedSlot()
+    websocketAPI.send("item_info", info)
 end
 
 local function main()
@@ -43,10 +45,11 @@ local function main()
 
 end
 
-setup()
 parallel.waitForAny(
     websocketAPI.startListener(messageHandler),
     function ()
+        sleep(.5)
+        setup()
         while true do
             local success, err = pcall(main)
             if not success then
