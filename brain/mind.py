@@ -1,12 +1,14 @@
 import time
 
-from controller import MessageController, CommandController
+from controller import MessageController, CommandController, CraftingController
 
 
 class Mind:
 
-    def __init__(self, message_controller:MessageController, command_controller:CommandController) -> None:
-        self.message_controller = message_controller
+    def __init__(self) -> None:
+        self.message_controller = MessageController()
+        self.command_controller = CommandController()
+        self.crafting_controller = CraftingController()
 
     def update(self):
         time.sleep(1)

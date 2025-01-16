@@ -21,11 +21,14 @@ def register_logger():
 if __name__ == '__main__':
     register_logger()
 
-    message_controller = MessageController()
-    command_controller = CommandController()
+    ## init controllers
+    MessageController()
+    CommandController()
+    ModelController()
+    CraftingController()
 
-    server = Server(message_controller, command_controller, host='10.147.18.240', port=5020)
-    mind = Mind(message_controller, command_controller)
+    server = Server(host='10.147.18.240', port=5020)
+    mind = Mind()
 
     try:
         server.start()
