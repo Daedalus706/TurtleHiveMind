@@ -102,6 +102,7 @@ class CommandConnection:
                     turtle_command = arguments[0]
                     turtle_arguments = arguments[1:]
                     self.message_controller.send_command(turtle_id, turtle_command, parse_turtle_command(turtle_command, turtle_arguments))
+                    self.command_controller.await_answer(turtle_id)
 
                 else:
                     new_event = self._create_event(data_dict["type"], data_dict["payload"])
