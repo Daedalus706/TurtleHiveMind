@@ -27,3 +27,4 @@ class CommandController:
 
     def set_server(self, server):
         self.server = server
+        self.logger.debug(f"set_server command: {self.server=}")
