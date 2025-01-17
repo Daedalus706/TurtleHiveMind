@@ -16,7 +16,7 @@ class TurtleError(ClientBaseEvent):
     command: None|str
 
 @dataclass
-class TurtleInfoMessage(ClientBaseEvent):
+class TurtleNotifyMessage(ClientBaseEvent):
     message: None|str
 
 @dataclass
