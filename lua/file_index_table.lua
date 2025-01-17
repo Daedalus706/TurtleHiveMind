@@ -1,5 +1,4 @@
 return {
-    "seed.lua",
     "util.lua",
     "queue.lua",
     "stateApi.lua",
