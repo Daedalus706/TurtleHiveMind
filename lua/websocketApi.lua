@@ -185,7 +185,7 @@ end
 
 
 ---@return boolean success
-local function download_file(filename)
+local function downloadFile(filename)
     local response = http.get("https://magnus-rpg.de/file/" .. filename)
     if response then
         local file = fs.open(filename, "w")
@@ -207,12 +207,12 @@ end
 ---@param no_reboot boolean if true, the turtle won't reboot, after loading files
 local function downloadFiles(no_reboot)
     local failed_to_load_file = false
-    failed_to_load_file = download_file("file_index_table.lua") or failed_to_load_file
+    failed_to_load_file = downloadFile("file_index_table.lua") or failed_to_load_file
 
     local files = dofile("file_index_table.lua")
 
     for i = 1, #files do
-        failed_to_load_file = download_file(files[i]) or failed_to_load_file
+        failed_to_load_file = downloadFile(files[i]) or failed_to_load_file
     end
 
     if not failed_to_load_file then

@@ -9,6 +9,7 @@ _G.stateAPI = require("StateAPI")
 _G.util = require("util")
 
 -- Load position data from file
+stateAPI.loadStates()
 positionAPI.loadPosition()
 
 -- Connect to websocket
@@ -17,5 +18,5 @@ websocketAPI.performHandshake()
 
 shell.run("online_turtle")
 
--- wget run "https://magnus-rpg.de/file/patch.lua"
+-- wget run "https://magnus-rpg.de/file/seed.lua"
 
