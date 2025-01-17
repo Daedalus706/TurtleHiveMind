@@ -32,7 +32,14 @@ class CommandConnection:
                     return None
                 return {'slot': int(arguments[0])}
 
+            case "turtle_update":
+                turtle_arguments = {}
+                if len(arguments) == 1:
+                    turtle_arguments["no_reboot"] = arguments[0]
+                return turtle_arguments
+
             case _:
+                self.send_error("unknown command '{}'".format(command))
                 return None
 
 
