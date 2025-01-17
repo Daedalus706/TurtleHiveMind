@@ -123,11 +123,10 @@ class CommandConnection:
                     if turtle_id == "all":
                         self.message_controller.broadcast_command(turtle_command, send_command_arguments)
                     else:
-                        try:
-                            turtle_id = int(turtle_id)
-                        except ValueError:
+                        if not turtle_id.isdigit():
                             self.send_error(f"{turtle_id} is not a valid turtle id")
                             continue
+                        turtle_id = int(turtle_id)
                         if turtle_id not in self.server.get_active_client_keys():
                             self.send_error(f"Turtle {turtle_id} not online")
                             continue
@@ -176,6 +175,10 @@ class CommandConnection:
     def notify(self, text:str):
         self.logger.debug("server notify")
         self.send_data("info", {"text": text})
+
+    def notify_as_turtle(self, turtle_id:int, text:str):
+        self.logger.debug("turtle notify")
+        self.send_data(f"turtle_{turtle_id}", {"text": text})
 
     def turtle_answer(self, turtle_id:int, text):
         self.logger.debug("turtle_answer")
