@@ -25,12 +25,14 @@ class ClientConnection:
                     message=payload['message'] if 'message' in payload else None,
                     command=payload['command'] if 'command' in payload else None
                 )
+                self.command_controller.notify_as_turtle(self.turtle_id, new_event.message)
 
             case 'info':
-                new_event = TurtleInfoMessage(
+                new_event = TurtleNotifyMessage(
                     turtle_id=self.turtle_id,
                     message=payload['message'] if 'message' in payload else None,
                 )
+                self.command_controller.notify_as_turtle(self.turtle_id, new_event.message)
 
             case "turtle_info":
                 new_event = TurtleInfoEvent(

@@ -57,3 +57,7 @@ class CommandController:
             event_data = asdict(event)
             self.server.command.turtle_answer(turtle_id, json.dumps(event_data))
             del self.awaiting_answer[turtle_id]
+
+    def notify_as_turtle(self, turtle_id:int, message:str):
+        if self.server is not None and self.server.command is not None:
+            self.server.command.notify_as_turtle(turtle_id, message)
