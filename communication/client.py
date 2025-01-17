@@ -2,6 +2,7 @@ import json
 import logging
 import time
 import threading
+from asyncio import new_event_loop
 
 from controller import MessageController, CommandController
 from event import *
@@ -25,6 +26,12 @@ class ClientConnection:
                     command=payload['command'] if 'command' in payload else None
                 )
 
+            case 'info':
+                new_event = TurtleInfoMessage(
+                    turtle_id=self.turtle_id,
+                    message=payload['message'] if 'message' in payload else None,
+                )
+
             case "turtle_info":
                 new_event = TurtleInfoEvent(
                     turtle_id=self.turtle_id,
@@ -42,6 +49,13 @@ class ClientConnection:
                     count=payload["count"] if "count" in payload else None,
                     max_count=payload["max_count"] if "max_count" in payload else None,
                     tags=payload["tags"] if "tags" in payload else None
+                )
+
+            case "state_change":
+                new_event = TurtleStateChangeEvent(
+                    turtle_id=self.turtle_id,
+                    name=payload["name"] if "name" in payload else None,
+                    value=payload["value"] if "value" in payload else None,
                 )
 
             case _:
