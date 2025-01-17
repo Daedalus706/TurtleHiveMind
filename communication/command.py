@@ -32,6 +32,9 @@ class CommandConnection:
                     return None
                 return {'slot': int(arguments[0])}
 
+            case _:
+                return None
+
 
     def __init__(self, websocket:ServerConnection, server):
         self.logger = logging.getLogger(__name__)
@@ -91,25 +94,37 @@ class CommandConnection:
                         self.await_confirm_function = None
                     else:
                         self.logger.debug('Command confirmation aborted')
-                        self.send_data("info", {"text": "confirmation aborted"})
+                        self.notify("confirmation aborted")
                         self.await_confirm_function = None
 
                 if command == "echo":
                     self.logger.debug(f'Command echo {" ".join(arguments)}')
-                    self.send_data("info", {"text":" ".join(arguments)})
+                    self.notify(" ".join(arguments))
 
                 elif command == "purge":
-                    self.send_data("info", {"text": "Do you really want to purge? Please 'confirm'"})
+                    self.notify("Do you really want to purge? Please 'confirm'")
                     self.await_confirm_function = self.command_controller.purge
 
                 elif "turtle_" in command:
                     self.logger.debug("received turtle command")
-                    turtle_id = int(command.split("turtle_")[1])
+                    turtle_id = command.split("turtle_")[1]
                     turtle_command = arguments[0]
                     turtle_arguments = arguments[1:]
-                    send_command = self.parse_turtle_command(turtle_command, turtle_arguments)
-                    if send_command is not None:
-                        self.message_controller.send_command(turtle_id, turtle_command, send_command)
+                    send_command_arguments = self.parse_turtle_command(turtle_command, turtle_arguments)
+                    if send_command_arguments is None:
+                        continue
+                    if turtle_id == "all":
+                        self.message_controller.broadcast_command(turtle_command, send_command_arguments)
+                    else:
+                        try:
+                            turtle_id = int(turtle_id)
+                        except ValueError:
+                            self.send_error(f"{turtle_id} is not a valid turtle id")
+                            continue
+                        if turtle_id not in self.server.get_active_client_keys():
+                            self.send_error(f"Turtle {turtle_id} not online")
+                            continue
+                        self.message_controller.send_command(turtle_id, turtle_command, send_command_arguments)
                         self.command_controller.await_answer(turtle_id)
 
                 else:
@@ -158,3 +173,6 @@ class CommandConnection:
     def turtle_answer(self, turtle_id:int, text):
         self.logger.debug("turtle_answer")
         self.send_data(f"turtle_{turtle_id}", {"text": text})
+
+    def send_error(self, message:str):
+        self.send_data("error", {"text": message})
