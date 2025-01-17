@@ -16,6 +16,10 @@ class TurtleError(ClientBaseEvent):
     command: None|str
 
 @dataclass
+class TurtleInfoMessage(ClientBaseEvent):
+    message: None|str
+
+@dataclass
 class TurtleInfoEvent(ClientBaseEvent):
     position: None|dict
     direction: None|int
@@ -29,3 +33,8 @@ class ItemInfoEvent(ClientBaseEvent):
     count: None|int
     max_count: None|int
     tags: None|dict
+
+@dataclass
+class TurtleStateChangeEvent(ClientBaseEvent):
+    name: None|str
+    value: None|str
