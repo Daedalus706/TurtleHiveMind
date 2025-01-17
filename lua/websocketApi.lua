@@ -212,7 +212,11 @@ local function downloadFiles(no_reboot)
     local files = dofile("file_index_table.lua")
 
     for i = 1, #files do
-        failed_to_load_file = downloadFile(files[i]) or failed_to_load_file
+        local success = downloadFile(files[i])
+        if not success then
+            failed_to_load_file = true
+            print("Error: failed to load " .. files[i])
+        end
     end
 
     if not failed_to_load_file then
