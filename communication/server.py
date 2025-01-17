@@ -9,7 +9,7 @@ from websockets.sync.server import Server as SocketServer
 
 from event import *
 from controller import MessageController, CommandController
-from communication.client import ClientConnection
+from communication.turtle_client import TurtleConnection
 from communication.command import CommandConnection
 
 
@@ -31,7 +31,7 @@ class Server:
 
         self.stop_event = threading.Event()
 
-        self.clients:dict[int,ClientConnection] = {}
+        self.clients:dict[int,TurtleConnection] = {}
         self.command:CommandConnection|None = None
 
         bound_handler = functools.partial(self.websocket_handler, message_controller=message_controller)
@@ -41,7 +41,7 @@ class Server:
 
 
     def add_connection(self, turtle_id, websocket):
-        new_connection = ClientConnection(turtle_id, websocket)
+        new_connection = TurtleConnection(turtle_id, websocket)
         new_connection.start()
         new_connection.send_data("request_turtle_info", None)
         self.clients[turtle_id] = new_connection
