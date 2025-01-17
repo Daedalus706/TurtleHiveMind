@@ -7,7 +7,7 @@
 ---@field getDirection fun(): number
 
 local position = { x = 0, y = 0, z = 0 }
-local direction = 0 -- 0 = Norden, 1 = Osten, 2 = Süden, 3 = Westen
+local direction = 0     -- 0 = north, 1 = east, 2 = south, 3 = west
 
 local function loadPosition()
     if fs.exists("position.txt") then
@@ -104,9 +104,25 @@ local function getPosition()
     return position
 end
 
+---@param x number
+---@param y number
+---@param z number
+local function setPosition(x, y, z)
+    position.x = x
+    position.y = y
+    position.z = z
+    savePosition()
+end
+
 ---@return number direction 0 = north, 1 = east, 2 = south, 3 = west
 local function getDirection()
     return direction
+end
+
+---@param newDirection number 0 = north, 1 = east, 2 = south, 3 = west
+local function setDirection(newDirection)
+    direction = newDirection
+    savePosition()
 end
 
 -- API-Export
@@ -115,4 +131,6 @@ return {
     savePosition = savePosition,
     getPosition = getPosition,
     getDirection = getDirection,
+    setPosition = setPosition,
+    setDirection = setDirection
 }

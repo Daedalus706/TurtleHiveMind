@@ -60,32 +60,34 @@ end
 
 --- sends a ping to the server
 local function sendPing()
-    if websocket then
-        send("ping", nil)
-    end
+    send("ping", nil)
 end
 
 
 --- answers a ping from the server
 local function sendPong()
-    if websocket then
-        send("pong", nil)
-    end
+    send("pong", nil)
 end
 
 
 local function performHandshake()
-    if websocket then
-        send("turtle_handshake", os.getComputerID())
-    end
+    send("turtle_handshake", os.getComputerID())
 end
 
 
 local function sendError(message, command)
-    if websocket then
-        send("error", {message=message, command=command})
-    end
+    send("error", {message=message, command=command})
 end
+
+
+local function sendInfo(message)
+    send("info", {message=message})
+end
+
+local function sendStateChange(stateName, value)
+    send("state_change", {name=stateName, value=value})
+end
+
 
 ---@return table websocket
 local function attemptReconnect()
@@ -182,12 +184,60 @@ local function isRunning()
 end
 
 
+---@return boolean success
+local function download_file(filename)
+    local response = http.get("https://magnus-rpg.de/file/" .. filename)
+    if response then
+        local file = fs.open(filename, "w")
+        if file then
+            file.write(response.readAll())
+            file.close()
+            response.close()
+            return true
+        else
+            sendError("failed to load file " .. filename)
+        end
+    else
+        sendError("failed to download file " .. filename)
+    end
+    return false
+end
+
+
+---@param no_reboot boolean if true, the turtle won't reboot, after loading files
+local function downloadFiles(no_reboot)
+    local failed_to_load_file = false
+    failed_to_load_file = download_file("file_index_table.lua") or failed_to_load_file
+
+    local files = dofile("file_index_table.lua")
+
+    for i = 1, #files do
+        failed_to_load_file = download_file(files[i]) or failed_to_load_file
+    end
+
+    if not failed_to_load_file then
+        sendInfo("updated")
+    else
+        sendError("failed to fully update")
+    end
+
+    if no_reboot then
+        sleep(1)
+        os.reboot()
+    end
+    
+end
+
+
 -- API-Tabelle
 local API = {
+    downloadFiles = downloadFiles,
     connect = connect,
     disconnect = disconnect,
     send = send,
     sendError = sendError,
+    sendInfo = sendInfo,
+    sendStateChange = sendStateChange,
     performHandshake = performHandshake,
     startListener = startListener,
     isConnected = isConnected,
