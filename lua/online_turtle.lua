@@ -2,7 +2,7 @@
 local handled_messages = 0
 
 
-local function sendTurtleInfo()
+local function sendTurtleInfo(data_type, payload)
     local data = {
         position = positionAPI.getPosition(),
         direction = positionAPI.getDirection(),
@@ -13,10 +13,10 @@ local function sendTurtleInfo()
 end
 
 
-local function sendItemInfo(slot)
-    local info = turtle.getItemDetail(slot, true)
+local function sendItemInfo(data_type, payload)
+    local info = turtle.getItemDetail(payload.slot, true)
     local data = {
-        slot = slot,
+        slot = payload.slot,
         name = info.name,
         count = info.count,
         max_count = info.max_count,
@@ -24,6 +24,17 @@ local function sendItemInfo(slot)
     }
     websocketAPI.send("item_info", data)
 end
+
+local function updateTurtle(data_type, payload)
+    websocketAPI.downloadFiles(payload.no_reboot)
+end
+
+
+local messageTable = {
+    request_turtle_info = sendTurtleInfo,
+    request_item_info = sendItemInfo,
+    turtle_update = updateTurtle,
+}
 
 
 local function messageHandler(data)
@@ -35,19 +46,14 @@ local function messageHandler(data)
         if not data.type then
             print("Invalid data type received: " .. tostring(data.type))
         else
-
-            if data.type == "request_turtle_info" then
-                sendTurtleInfo()
-            end
-
-            if data.type == "request_item_info" then
-                if data.payload.slot then
-                    sendItemInfo(data.payload.slot)
-                else
-                    websocketAPI.error("missing parameter: 'slot'", data.type)
+            local handler = messageTable[data.type]
+            if handler then
+                local success, err = pcall(handler, data.type, data.payload)
+                if not success then
+                    print("Error handleing " .. data.type .. " " .. err)
+                    websocketAPI.sendError(err, data.type)
                 end
             end
-
         end
     end
 end
