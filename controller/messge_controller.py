@@ -38,6 +38,9 @@ class MessageController:
                 message_sent.add(turtle_id)
         return message_sent
 
+    def broadcast_command(self, command, arguments):
+        self.broadcast_message(command, arguments)
+
     def add_event(self, new_event:BaseEvent):
         self.event_queue.put(new_event)
 
