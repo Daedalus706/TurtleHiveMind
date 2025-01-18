@@ -25,8 +25,35 @@ local function sendItemInfo(data_type, payload)
     websocketAPI.send("item_info", data)
 end
 
+
 local function updateTurtle(data_type, payload)
     websocketAPI.downloadFiles(payload.no_reboot)
+end
+
+
+local function inspect_block(data_type, payload)
+    local inspect_result = nil
+    local pos = positionAPI.getPosition()
+    if payload.direction and payload.direction == "up" then
+        inspect_result = turtle.inspectUp()
+        pos.y = pos.y + 1
+    elseif payload.direction and payload.direction == "down" then
+        inspect_result = turtle.inspectDown()
+        pos.y = pos.y - 1
+    elseif not payload.direction or payload.direction == "front" then
+        inspect_result = turtle.inspect()
+        local direction = positionAPI.getDirection()
+        if direction == 0 then pos.z = pos.z - 1
+        elseif direction == 1 then pos.x = pos.x + 1
+        elseif direction == 2 then pos.z = pos.z + 1
+        elseif direction == 3 then pos.x = pos.x - 1
+        end
+    else
+        websocketAPI.sendError("invalid inspect direction. Try: 'up' 'down' 'front'", data_type)
+        return
+    end
+    inspect_result.pos = pos
+    websocketAPI.send("block_info", inspect_result)
 end
 
 
@@ -34,6 +61,7 @@ local messageTable = {
     request_turtle_info = sendTurtleInfo,
     request_item_info = sendItemInfo,
     turtle_update = updateTurtle,
+    inspect_block = inspect_block,
 }
 
 
