@@ -32,16 +32,17 @@ end
 
 
 local function inspect_block(data_type, payload)
+    local success = false
     local inspect_result = nil
     local pos = positionAPI.getPosition()
     if payload.direction and payload.direction == "up" then
-        inspect_result = turtle.inspectUp()
+        success, inspect_result = turtle.inspectUp()
         pos.y = pos.y + 1
     elseif payload.direction and payload.direction == "down" then
-        inspect_result = turtle.inspectDown()
+        success, inspect_result = turtle.inspectDown()
         pos.y = pos.y - 1
     elseif not payload.direction or payload.direction == "front" then
-        inspect_result = turtle.inspect()
+        success, inspect_result = turtle.inspect()
         local direction = positionAPI.getDirection()
         if direction == 0 then pos.z = pos.z - 1
         elseif direction == 1 then pos.x = pos.x + 1
@@ -52,16 +53,24 @@ local function inspect_block(data_type, payload)
         websocketAPI.sendError("invalid inspect direction. Try: 'up' 'down' 'front'", data_type)
         return
     end
+    if not success then
+        inspect_result = {name="minecraft:air"}
+    end
     inspect_result.pos = pos
     websocketAPI.send("block_info", inspect_result)
+end
+
+local function reboot(data_type, payload)
+    os.reboot()
 end
 
 
 local messageTable = {
     request_turtle_info = sendTurtleInfo,
     request_item_info = sendItemInfo,
-    turtle_update = updateTurtle,
+    update = updateTurtle,
     inspect_block = inspect_block,
+    reboot = reboot,
 }
 
 

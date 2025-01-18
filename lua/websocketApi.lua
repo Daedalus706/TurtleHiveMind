@@ -207,7 +207,7 @@ end
 ---@param no_reboot boolean if true, the turtle won't reboot, after loading files
 local function downloadFiles(no_reboot)
     local failed_to_load_file = false
-    failed_to_load_file = downloadFile("file_index_table.lua") or failed_to_load_file
+    failed_to_load_file = (not downloadFile("file_index_table.lua")) or failed_to_load_file
 
     local files = dofile("file_index_table.lua")
 
