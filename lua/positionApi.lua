@@ -101,7 +101,11 @@ end
 
 ---@return table position {x, y, z}
 local function getPosition()
-    return position
+    return {
+        x = position.x,
+        y = position.y,
+        z = position.z
+    }
 end
 
 ---@param x number
