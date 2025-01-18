@@ -1,6 +1,8 @@
 import logging
 import os
 
+import numpy as np
+
 from util import const
 
 
@@ -29,6 +31,13 @@ class ModelController:
 
         self.logger = logging.getLogger(__name__)
         ModelController.create_save_folder('./', const.SAVES_STRUCTURE)
+
+        self.chunks:dict[tuple[int, int, int], np.ndarray] = {}
+
+    def get_chunk(self, pos:tuple[int, int, int]) -> np.ndarray:
+        if pos in self.chunks:
+            return self.chunks[pos]
+        self.chunks[pos] = np.zeros((16, 384, 16), dtype=np.uint16)
 
     def purge(self):
         self.logger.info("Purge Model")
