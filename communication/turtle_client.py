@@ -1,3 +1,4 @@
+import json
 import logging
 from communication.base_client import BaseClient
 from event import *
@@ -45,6 +46,15 @@ class TurtleConnection(BaseClient):
                     max_count=payload["max_count"] if "max_count" in payload else None,
                     tags=payload["tags"] if "tags" in payload else None
                 )
+
+            case "block_info":
+                new_event = BlockInfoEvent(
+                    turtle_id=self.turtle_id,
+                    position=payload["pos"] if "pos" in payload else None,
+                    name=payload["name"] if "name" in payload else None,
+                    tags=payload["tags"] if "tags" in payload else None,
+                )
+                self.command_controller.notify_as_turtle(self.turtle_id, json.dumps(payload))
 
             case "state_change":
                 new_event = TurtleStateChangeEvent(
