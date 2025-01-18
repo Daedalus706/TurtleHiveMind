@@ -35,6 +35,12 @@ class ItemInfoEvent(ClientBaseEvent):
     tags: None|dict
 
 @dataclass
+class BlockInfoEvent(ClientBaseEvent):
+    position: None|dict
+    name: None|str
+    tags: None|dict
+
+@dataclass
 class TurtleStateChangeEvent(ClientBaseEvent):
     name: None|str
     value: None|str

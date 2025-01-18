@@ -29,6 +29,12 @@ class CommandConnection(BaseClient):
                     turtle_arguments["no_reboot"] = arguments[0]
                 return turtle_arguments
 
+            case "inspect_block":
+                turtle_arguments = {}
+                if len(arguments) == 1:
+                    turtle_arguments["direction"] = arguments[0]
+                return turtle_arguments
+
             case _:
                 self.send_error("unknown command '{}'".format(command))
                 return None
