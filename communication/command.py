@@ -1,6 +1,7 @@
 import logging
 
 from communication.base_client import BaseClient
+from controller import ModelController
 from event import *
 from websockets.sync.server import ServerConnection
 
@@ -49,6 +50,7 @@ class CommandConnection(BaseClient):
         self.server = server
         self.await_confirm_function = None
         self.name = "Command"
+        self.model_controller = ModelController()
 
 
     def data_handler(self, data_dict):
@@ -73,6 +75,9 @@ class CommandConnection(BaseClient):
             elif command == "purge":
                 self.notify("Do you really want to purge? Please 'confirm'")
                 self.await_confirm_function = self.command_controller.purge
+
+            elif command == "save":
+                self.model_controller.save()
 
             elif "turtle_" in command:
                 self.logger.debug("received turtle command")
