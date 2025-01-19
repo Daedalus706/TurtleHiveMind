@@ -62,6 +62,7 @@ class Server:
             case "turtle_handshake":
                 if client_ip != self.minecraft_ip:
                     logging.info(f"Refused turtle connection from unknown host: {client_ip}")
+                    websocket.send(json.dumps({"type": "refuse_connection"}), text=True)
                     return
                 turtle_id = int(handshake_data_dict["payload"])
                 self.add_connection(turtle_id, websocket)
