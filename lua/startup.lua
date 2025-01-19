@@ -19,4 +19,5 @@ websocketAPI.performHandshake()
 shell.run("online_turtle")
 
 -- wget run "https://magnus-rpg.de/file/seed.lua"
+-- wget run "https://magnus-rpg.de/file/patch.lua"
 
