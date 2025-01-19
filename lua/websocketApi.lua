@@ -139,6 +139,10 @@ local function startListener(messageHandler)
 
                         if data.type == "ping" then
                             sendPong()
+                        elseif data.type == "pong" then
+                        elseif data.type == "refuse_connection" then
+                            running = false
+                            print("Server refused connection")
                         else
                             messageHandler(data)
                         end
@@ -149,21 +153,20 @@ local function startListener(messageHandler)
         end,
         function ()
             while running do
-                if not websocket then
-                    sleep(1)
-                else
+                if websocket then
                     if os.clock() - lastMessageTime > PING_INTERVAL then
                         sendPing()
                     end
 
-                    sleep(1)
-
                     if os.clock() - lastMessageTime > TIMEOUT_INTERVAL then
                         print("Connection Timeout")
-                        pcall(websocket.close)
-                        websocket = nil
+                        if websocket then
+                            websocket.close()
+                            websocket = nil
+                        end
                     end
                 end
+                sleep(1)
             end
         end
     )
