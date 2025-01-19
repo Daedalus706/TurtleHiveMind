@@ -25,3 +25,9 @@ class Inventory:
         if item not in self.content:
             self.content[item] = 0
         self.content[item] += count
+
+    def to_dict(self):
+        return {
+            "size": self.size,
+            "content": self.content,
+        }
