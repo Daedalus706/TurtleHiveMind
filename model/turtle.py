@@ -20,3 +20,21 @@ class Turtle:
             self.fuel = event.fuel
         if event.inventory is not None:
             self.inventory = event.inventory
+
+    @staticmethod
+    def from_dict(turtle_dict:dict) -> 'Turtle':
+        turtle = Turtle(int(turtle_dict['turtle_id']))
+        turtle.position = turtle_dict['position']
+        turtle.direction = turtle_dict['direction']
+        turtle.fuel = turtle_dict['fuel']
+        turtle.inventory = turtle_dict['inventory']
+        return turtle
+
+    def to_dict(self):
+        return {
+            'turtle_id': self.turtle_id,
+            'position': self.position,
+            'direction': self.direction,
+            'fuel': self.fuel,
+            'inventory': self.inventory,
+        }
