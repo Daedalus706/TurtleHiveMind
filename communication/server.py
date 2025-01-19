@@ -48,16 +48,18 @@ class Server:
 
 
     def websocket_handler(self, websocket:ServerConnection, message_controller:MessageController):
-        client_ip, client_port = websocket.remote_address
+        headers = websocket.request.headers
+        client_ip = headers.get("X-Forwarded-For", None)
+        self.logger.debug(f"New client ip: {client_ip}")
         try:
             handshake_data_dict = json.loads(websocket.recv())
         except ConnectionClosed:
-            self.logger.error(f"New connection failed to handshake. {client_ip=}")
+            self.logger.error(f"New connection failed to handshake")
             return
 
         match handshake_data_dict["type"]:
             case "turtle_handshake":
-                turtle_id = handshake_data_dict["payload"]
+                turtle_id = int(handshake_data_dict["payload"])
                 self.add_connection(turtle_id, websocket)
 
                 new_event = NewTurtleConnectionEvent(turtle_id)
@@ -67,6 +69,9 @@ class Server:
                 self.command_controller.connect_turtle(turtle_id)
                 self.clients[turtle_id].stop_event.wait()
                 self.command_controller.disconnect_turtle(turtle_id)
+
+                new_event = TurtleDisconnectEvent(turtle_id)
+                message_controller.add_event(new_event)
 
             case "command_handshake":
                 if self.command is None:
