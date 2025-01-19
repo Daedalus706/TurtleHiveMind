@@ -11,6 +11,11 @@ class NewTurtleConnectionEvent(TurtleBaseEvent):
     pass
 
 @dataclass
+class TurtleDisconnectEvent(TurtleBaseEvent):
+    pass
+
+
+@dataclass
 class TurtleError(TurtleBaseEvent):
     message: None|str
     command: None|str
