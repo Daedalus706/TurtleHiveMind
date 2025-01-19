@@ -127,11 +127,12 @@ class ModelController:
     def connect_turtle(self, event:NewTurtleConnectionEvent):
         if event.turtle_id not in self.turtles.keys():
             new_turtle = Turtle(event.turtle_id)
-            new_turtle.set_connected(True)
             self.turtles[event.turtle_id] = new_turtle
+        self.turtles[event.turtle_id].set_connected(True)
 
-    def disconnect_turtle(self, event:NewTurtleConnectionEvent):
-        pass
+    def disconnect_turtle(self, event:TurtleDisconnectEvent):
+        if event.turtle_id in self.turtles.keys():
+            self.turtles[event.turtle_id].set_connected(False)
 
 
 
