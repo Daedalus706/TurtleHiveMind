@@ -55,6 +55,12 @@ local function inspect_block(data_type, payload)
     end
     if not success then
         inspect_result = {name="minecraft:air"}
+    else
+        for key in pairs(inspect_result.tags) do
+            if not key:find("minecraft:") then
+                inspect_result.tags[key] = nil
+            end
+        end
     end
     inspect_result.pos = pos
     websocketAPI.send("block_info", inspect_result)
@@ -64,6 +70,10 @@ local function reboot(data_type, payload)
     os.reboot()
 end
 
+local function doNothing(data_type, payload)
+    return
+end
+
 
 local messageTable = {
     request_turtle_info = sendTurtleInfo,
@@ -71,6 +81,7 @@ local messageTable = {
     update = updateTurtle,
     inspect_block = inspect_block,
     reboot = reboot,
+    empty = doNothing,
 }
 
 
@@ -87,9 +98,11 @@ local function messageHandler(data)
             if handler then
                 local success, err = pcall(handler, data.type, data.payload)
                 if not success then
-                    print("Error handleing " .. data.type .. " " .. err)
-                    websocketAPI.sendError(err, data.type)
+                    print("Error handleing " .. tostring(data.type) .. " " .. err)
+                    websocketAPI.sendError(err, tostring(data.type))
                 end
+            else
+                print("Can't handle message " .. tostring(data.type))
             end
         end
     end
