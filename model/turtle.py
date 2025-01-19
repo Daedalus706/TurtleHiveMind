@@ -11,15 +11,19 @@ class Turtle:
         self.fuel:int|None = None
         self.inventory:dict|None = None
 
+        self.connected = False
+
+    def set_connected(self, connected):
+        self.connected = connected
+
+    def get_connected(self):
+        return self.connected
+
     def update_with_event(self, event:TurtleInfoEvent):
-        if event.position is not None:
-            self.position = event.position
-        if event.direction is not None:
-            self.direction = event.direction
-        if event.fuel is not None:
-            self.fuel = event.fuel
-        if event.inventory is not None:
-            self.inventory = event.inventory
+        if event.position is not None: self.position = event.position
+        if event.direction is not None: self.direction = event.direction
+        if event.fuel is not None: self.fuel = event.fuel
+        if event.inventory is not None: self.inventory = event.inventory
 
     @staticmethod
     def from_dict(turtle_dict:dict) -> 'Turtle':
