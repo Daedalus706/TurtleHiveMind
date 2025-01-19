@@ -1,5 +1,4 @@
 import numpy as np
-from pip._internal.utils.retry import retry
 
 from model.inventory import Inventory
 
