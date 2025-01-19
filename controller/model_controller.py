@@ -131,6 +131,7 @@ class ModelController:
             self.turtles[event.turtle_id] = new_turtle
 
     def disconnect_turtle(self, event:NewTurtleConnectionEvent):
+        pass
 
 
 
