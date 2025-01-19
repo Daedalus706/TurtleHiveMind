@@ -88,7 +88,7 @@ class ModelController:
         path = os.path.join(const.SAVE_PATH_TURTLES, "turtles.json")
         if os.path.exists(path):
             for turtle_dict in json.load(open(path, "r")):
-                self.turtles[int(turtle_dict["id"])] = Turtle.from_dict(turtle_dict)
+                self.turtles[int(turtle_dict["turtle_id"])] = Turtle.from_dict(turtle_dict)
 
     def get_chunk(self, pos:tuple[int, int]) -> np.ndarray:
         if pos not in self.chunks:
