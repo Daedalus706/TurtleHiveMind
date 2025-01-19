@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class TurtleConnection(BaseClient):
 
-    def _create_event(self, event_type:str, payload:dict) -> ClientBaseEvent | None:
+    def _create_event(self, event_type:str, payload:dict) -> TurtleBaseEvent | None:
         match event_type:
 
             case 'error':

@@ -8,7 +8,7 @@ from websockets.sync.server import ServerConnection
 
 class CommandConnection(BaseClient):
 
-    def _create_event(self, event_type:str, payload:dict) -> ClientBaseEvent|None:
+    def _create_event(self, event_type:str, payload:dict) -> TurtleBaseEvent | None:
         match event_type:
             case _:
                 return None

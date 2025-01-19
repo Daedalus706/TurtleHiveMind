@@ -2,32 +2,32 @@ from .base_event import BaseEvent
 from dataclasses import dataclass
 
 @dataclass
-class ClientBaseEvent(BaseEvent):
+class TurtleBaseEvent(BaseEvent):
     turtle_id: int
 
 
 @dataclass
-class NewTurtleConnectionEvent(ClientBaseEvent):
+class NewTurtleConnectionEvent(TurtleBaseEvent):
     pass
 
 @dataclass
-class TurtleError(ClientBaseEvent):
+class TurtleError(TurtleBaseEvent):
     message: None|str
     command: None|str
 
 @dataclass
-class TurtleNotifyMessage(ClientBaseEvent):
+class TurtleNotifyMessage(TurtleBaseEvent):
     message: None|str
 
 @dataclass
-class TurtleInfoEvent(ClientBaseEvent):
+class TurtleInfoEvent(TurtleBaseEvent):
     position: None|dict
     direction: None|int
     fuel: None|int
     inventory: None|dict
 
 @dataclass
-class ItemInfoEvent(ClientBaseEvent):
+class ItemInfoEvent(TurtleBaseEvent):
     slot: None|int
     name: None|str
     count: None|int
@@ -35,12 +35,12 @@ class ItemInfoEvent(ClientBaseEvent):
     tags: None|dict
 
 @dataclass
-class BlockInfoEvent(ClientBaseEvent):
+class BlockInfoEvent(TurtleBaseEvent):
     position: None|dict
     name: None|str
     tags: None|dict
 
 @dataclass
-class TurtleStateChangeEvent(ClientBaseEvent):
+class TurtleStateChangeEvent(TurtleBaseEvent):
     name: None|str
     value: None|str
