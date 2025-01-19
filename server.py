@@ -47,7 +47,7 @@ if __name__ == '__main__':
     ## init controllers
     MessageController()
     CommandController()
-    ModelController()
+    model_controller = ModelController()
     CraftingController()
 
     server = Server(host=config.get("Server", "ip"), port=config.getint("Server", "port"))
@@ -62,5 +62,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("Stop signal received, exiting...")
         server.stop()
+        model_controller.save()
+
 
     print("Server stopped")
