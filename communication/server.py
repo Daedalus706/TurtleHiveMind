@@ -20,7 +20,7 @@ class Server:
         socket_server.serve_forever()
 
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, minecraft_ip):
         self.logger = logging.getLogger(__name__)
         self.command_controller = CommandController()
         self.command_controller.set_server(self)
@@ -28,6 +28,7 @@ class Server:
         message_controller.server = self
         self.host = host
         self.port = port
+        self.minecraft_ip = minecraft_ip
 
         self.stop_event = threading.Event()
 
@@ -59,6 +60,9 @@ class Server:
 
         match handshake_data_dict["type"]:
             case "turtle_handshake":
+                if client_ip != self.minecraft_ip:
+                    logging.info(f"Refused turtle connection from unknown host: {client_ip}")
+                    return
                 turtle_id = int(handshake_data_dict["payload"])
                 self.add_connection(turtle_id, websocket)
 

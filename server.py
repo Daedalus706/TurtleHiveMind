@@ -30,6 +30,9 @@ def load_config() -> configparser.ConfigParser:
             "ip": "127.0.0.1",
             "port": "5020"
         }
+        config_parser["Minecraft-Server"] = {
+            "ip": "127.0.0.1",
+        }
         config_parser["Logger"] = {
             "level": "INFO",
         }
@@ -50,7 +53,11 @@ if __name__ == '__main__':
     model_controller = ModelController()
     CraftingController()
 
-    server = Server(host=config.get("Server", "ip"), port=config.getint("Server", "port"))
+    server = Server(
+        host=config.get("Server", "ip"),
+        port=config.getint("Server", "port"),
+        minecraft_ip=config.get("Minecraft-Server", "ip")
+    )
     mind = Mind()
 
     try:
