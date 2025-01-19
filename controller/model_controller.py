@@ -7,6 +7,7 @@ from bidict import bidict
 
 from util import const
 from model import Chest, Turtle
+from event import *
 
 
 class ModelController:
@@ -97,17 +98,6 @@ class ModelController:
     def get_block_id_at(self, pos:tuple[int, int, int]) -> np.uint16:
         return self.get_chunk((pos[0] // 16, pos[2] // 16))[pos[0], pos[1]+64, pos[2]]
 
-    def get_block_name_at(self, pos:tuple[int, int, int]) -> str|None:
-        block_id = self.get_block_id_at(pos)
-        if block_id == 0:
-            return None
-        return self.block_lookup[block_id]
-
-    def set_block_at(self, pos:tuple[int, int, int], block_name:str):
-        if block_name not in self.block_lookup.inv:
-            self.block_lookup[np.uint16(max(self.block_lookup)+1)] = block_name
-        self.get_chunk((pos[0]//16, pos[2]//16))[pos[0], pos[1]+64, pos[2]] = self.block_lookup.inv[block_name]
-
     def purge(self):
         self.logger.info("Purge Model")
         tree = list(os.walk("./saves"))
@@ -122,3 +112,31 @@ class ModelController:
         self.block_lookup = bidict()
         self.chunks = {}
         self.chests = {}
+
+    def get_block_name_at(self, pos:tuple[int, int, int]) -> str|None:
+        block_id = self.get_block_id_at(pos)
+        if block_id == 0:
+            return None
+        return self.block_lookup[block_id]
+
+    def set_block_at(self, pos:tuple[int, int, int], block_name:str):
+        if block_name not in self.block_lookup.inv:
+            self.block_lookup[np.uint16(max(self.block_lookup)+1)] = block_name
+        self.get_chunk((pos[0]//16, pos[2]//16))[pos[0], pos[1]+64, pos[2]] = self.block_lookup.inv[block_name]
+
+    def connect_turtle(self, event:NewTurtleConnectionEvent):
+        if event.turtle_id not in self.turtles.keys():
+            new_turtle = Turtle(event.turtle_id)
+            new_turtle.set_connected(True)
+            self.turtles[event.turtle_id] = new_turtle
+
+    def disconnect_turtle(self, event:NewTurtleConnectionEvent):
+
+
+
+
+
+
+
+
+
