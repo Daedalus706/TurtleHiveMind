@@ -77,9 +77,11 @@ class ModelController:
                 self.block_lookup = bidict({np.uint16(k): v for k, v in block_dict})
 
     def load_chests(self):
-        files = os.listdir(const.SAVE_PATH_CHESTS)
-        for file in files:
-            pass
+        path = os.path.join(const.SAVE_PATH_CHESTS, "chests.json")
+        if os.path.exists(path):
+            for chest_dict in json.load(open(path, "r")):
+                position = (int(chest_dict["position"][0]), int(chest_dict["position"][1]), int(chest_dict["position"][2]))
+                self.chests[position] = Chest.from_dict(chest_dict)
 
     def load_turtles(self):
         path = os.path.join(const.SAVE_PATH_TURTLES, "turtles.json")
