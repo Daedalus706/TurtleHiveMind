@@ -1,5 +1,4 @@
 import logging
-import time
 
 from event import *
 from controller import *
@@ -15,8 +14,13 @@ class Mind:
         self.crafting_controller = CraftingController()
 
     def update(self):
-        for event in self.message_controller.get_events():
-            self.logger.debug(f"Handle Event of type: {type(event)}")
-            match event.__class__.__name__:
-                case 'NewTurtleConnectionEvent':
-                    self.model_controller.connect_turtle(event)
+        for e in self.message_controller.get_events():
+            self.logger.debug(f"Handle Event of type: {type(e)}")
+
+            if type(e) is NewTurtleConnectionEvent:
+                event:NewTurtleConnectionEvent = e
+                self.model_controller.connect_turtle(event)
+
+            elif type(e) is TurtleDisconnectEvent:
+                event: TurtleDisconnectEvent = e
+                self.model_controller.disconnect_turtle(event)
