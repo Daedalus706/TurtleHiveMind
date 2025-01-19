@@ -1,6 +1,7 @@
 import logging
 import time
 
+from event import *
 from controller import MessageController, CommandController, CraftingController
 
 
@@ -13,7 +14,8 @@ class Mind:
         self.crafting_controller = CraftingController()
 
     def update(self):
-        time.sleep(1)
         for event in self.message_controller.get_events():
             self.logger.debug(f"Handle Event of type: {type(event)}")
-        sent_to = self.message_controller.broadcast_message("empty", None)
+            match event.__class__.__name__:
+                case 'NewTurtleConnectionEvent':
+                    print('New Turtle Connection Event')
