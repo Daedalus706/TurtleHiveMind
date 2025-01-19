@@ -11,3 +11,7 @@ SAVES_STRUCTURE =   {
                         "chests": {}
                         }
                     }
+
+SAVE_PATH_CHUNKS = "saves/chunks"
+SAVE_PATH_CHESTS = "saves/chests"
+SAVE_PATH_TURTLES = "saves/turtles"
