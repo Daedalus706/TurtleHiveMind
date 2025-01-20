@@ -101,7 +101,7 @@ class ModelController:
         return self.block_lookup.inv[self.block_lookup]
 
     def get_block_id_at(self, pos:tuple[int, int, int]) -> np.uint16:
-        return self.get_chunk((pos[0] // 16, pos[2] // 16))[pos[0], pos[1]+64, pos[2]]
+        return self.get_chunk((pos[0] // 16, pos[2] // 16))[pos[0]%16, pos[1]+64, pos[2]%16]
 
     def purge(self):
         self.logger.info("Purge Model")
@@ -129,7 +129,7 @@ class ModelController:
         if block_name not in self.block_lookup.inv:
             new_block_id = max(self.block_lookup)+1 if len(self.block_lookup) > 0 else 1
             self.block_lookup[np.uint16(new_block_id)] = block_name
-        self.get_chunk((pos[0]//16, pos[2]//16))[pos[0], pos[1]+64, pos[2]] = self.block_lookup.inv[block_name]
+        self.get_chunk((pos[0]//16, pos[2]//16))[pos[0]%16, pos[1]+64, pos[2]%16] = self.block_lookup.inv[block_name]
 
     def update_block_with_event(self, event:BlockInfoEvent):
         if event.position is None or event.name is None:
