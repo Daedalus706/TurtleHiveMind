@@ -54,6 +54,7 @@ class TurtleConnection(BaseClient):
                     name=payload["name"] if "name" in payload else None,
                     tags=payload["tags"] if "tags" in payload else None,
                 )
+                print(payload)
                 self.command_controller.notify_as_turtle(self.turtle_id, json.dumps(payload))
 
             case "state_change":
