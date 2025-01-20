@@ -1,9 +1,11 @@
-import json
 import logging
 import os
 
 import numpy as np
 from bidict import bidict
+
+import json
+from json.decoder import JSONDecodeError
 
 from util import const
 from model import Chest, Turtle
@@ -75,21 +77,34 @@ class ModelController:
                 parts = file[6:-4].split('_')
                 self.chunks[(int(parts[0]), int(parts[1]))] = np.load(os.path.join(const.SAVE_PATH_CHUNKS, file))
             elif "blocks" in file:
-                block_dict = json.load(open(os.path.join(const.SAVE_PATH_CHUNKS, file), "r"))
-                self.block_lookup = bidict({np.uint16(k): v for k, v in block_dict})
+                try:
+                    block_dict = json.load(open(os.path.join(const.SAVE_PATH_CHUNKS, file), "r"))
+                    self.block_lookup = bidict({np.uint16(k): v for k, v in block_dict})
+                except JSONDecodeError:
+                    self.logger.warning("Unable to load block lookup table from json file")
+                    self.chunks: dict[tuple[int, int], np.ndarray] = {}
+                    return
 
     def load_chests(self):
         path = os.path.join(const.SAVE_PATH_CHESTS, "chests.json")
         if os.path.exists(path):
-            for chest_dict in json.load(open(path, "r")):
-                position = (int(chest_dict["position"][0]), int(chest_dict["position"][1]), int(chest_dict["position"][2]))
-                self.chests[position] = Chest.from_dict(chest_dict)
+            try:
+                for chest_dict in json.load(open(path, "r")):
+                    position = (int(chest_dict["position"][0]), int(chest_dict["position"][1]), int(chest_dict["position"][2]))
+                    self.chests[position] = Chest.from_dict(chest_dict)
+            except JSONDecodeError:
+                self.logger.warning("Unable to load chests from json file")
+                return
 
     def load_turtles(self):
         path = os.path.join(const.SAVE_PATH_TURTLES, "turtles.json")
         if os.path.exists(path):
-            for turtle_dict in json.load(open(path, "r")):
-                self.turtles[int(turtle_dict["turtle_id"])] = Turtle.from_dict(turtle_dict)
+            try:
+                for turtle_dict in json.load(open(path, "r")):
+                    self.turtles[int(turtle_dict["turtle_id"])] = Turtle.from_dict(turtle_dict)
+            except JSONDecodeError:
+                self.logger.warning("Unable to load turtles from json file")
+                return
 
     def get_chunk(self, pos:tuple[int, int]) -> np.ndarray:
         if pos not in self.chunks:
