@@ -47,7 +47,7 @@ class MessageController:
     def get_event(self, block=True, timeout:float|None=None) -> BaseEvent:
         return self.event_queue.get(block, timeout)
 
-    def get_events(self) -> list[BaseEvent]:
+    def get_events(self) -> list:
         events = []
         while self.has_event():
             events.append(self.event_queue.get())
