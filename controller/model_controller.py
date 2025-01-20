@@ -127,7 +127,8 @@ class ModelController:
 
     def set_block_at(self, pos:tuple[int, int, int], block_name:str):
         if block_name not in self.block_lookup.inv:
-            self.block_lookup[np.uint16(max(self.block_lookup)+1)] = block_name
+            new_block_id = max(self.block_lookup)+1 if len(self.block_lookup) > 0 else 1
+            self.block_lookup[np.uint16(new_block_id)] = block_name
         self.get_chunk((pos[0]//16, pos[2]//16))[pos[0], pos[1]+64, pos[2]] = self.block_lookup.inv[block_name]
 
     def update_block_with_event(self, event:BlockInfoEvent):
