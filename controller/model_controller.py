@@ -48,7 +48,8 @@ class ModelController:
         self.logger.info("Saving chunks")
         for key, chunk in self.chunks.items():
             np.save(os.path.join(const.SAVE_PATH_CHUNKS, f"chunk_{key[0]}_{key[1]}.npy"), chunk)
-        json.dump(dict(self.block_lookup), open(os.path.join(const.SAVE_PATH_CHUNKS, "blocks.json"), "w"), indent=4)
+        save_block_lookup = {int(k): v for k, v in self.block_lookup.items()}
+        json.dump(save_block_lookup, open(os.path.join(const.SAVE_PATH_CHUNKS, "blocks.json"), "w"), indent=4)
 
     def save_chests(self):
         self.logger.info("Saving chests")
