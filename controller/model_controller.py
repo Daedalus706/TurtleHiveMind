@@ -79,7 +79,7 @@ class ModelController:
             elif "blocks" in file:
                 try:
                     block_dict = json.load(open(os.path.join(const.SAVE_PATH_CHUNKS, file), "r"))
-                    self.block_lookup = bidict({np.uint16(k): v for k, v in block_dict})
+                    self.block_lookup = bidict({np.uint16(k): v for k, v in block_dict.items()})
                 except JSONDecodeError:
                     self.logger.warning("Unable to load block lookup table from json file")
                     self.chunks: dict[tuple[int, int], np.ndarray] = {}
