@@ -24,3 +24,11 @@ class Mind:
             elif type(e) is TurtleDisconnectEvent:
                 event: TurtleDisconnectEvent = e
                 self.model_controller.disconnect_turtle(event)
+
+            elif type(e) is BlockInfoEvent:
+                event: BlockInfoEvent = e
+                self.model_controller.update_block_with_event(event)
+
+            elif type(e) is TurtleInfoEvent:
+                event: TurtleInfoEvent = e
+                self.model_controller.update_turtle_with_event(event)

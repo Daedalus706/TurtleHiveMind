@@ -95,6 +95,11 @@ class ModelController:
             self.chunks[pos] = np.zeros((16, 384, 16), dtype=np.uint16)
         return self.chunks[pos]
 
+    def get_block_id_by_name(self, name:str) -> np.uint16|None:
+        if name not in self.block_lookup:
+            return None
+        return self.block_lookup.inv[self.block_lookup]
+
     def get_block_id_at(self, pos:tuple[int, int, int]) -> np.uint16:
         return self.get_chunk((pos[0] // 16, pos[2] // 16))[pos[0], pos[1]+64, pos[2]]
 
@@ -110,8 +115,9 @@ class ModelController:
                 except Exception as e:
                     self.logger.error(f"Error while purging files {file_path}: {e}")
         self.block_lookup = bidict()
-        self.chunks = {}
-        self.chests = {}
+        self.chunks: dict[tuple[int, int], np.ndarray] = {}
+        self.chests: dict[tuple[int, int, int], Chest] = {}
+        self.turtles:dict[int:Turtle] = {}
 
     def get_block_name_at(self, pos:tuple[int, int, int]) -> str|None:
         block_id = self.get_block_id_at(pos)
@@ -124,6 +130,13 @@ class ModelController:
             self.block_lookup[np.uint16(max(self.block_lookup)+1)] = block_name
         self.get_chunk((pos[0]//16, pos[2]//16))[pos[0], pos[1]+64, pos[2]] = self.block_lookup.inv[block_name]
 
+    def update_block_with_event(self, event:BlockInfoEvent):
+        if event.position is None or event.name is None:
+            return
+        pos = int(event.position["x"]), int(event.position["y"]), int(event.position["z"])
+        self.set_block_at(pos, event.name)
+
+
     def connect_turtle(self, event:NewTurtleConnectionEvent):
         if event.turtle_id not in self.turtles.keys():
             new_turtle = Turtle(event.turtle_id)
@@ -133,6 +146,12 @@ class ModelController:
     def disconnect_turtle(self, event:TurtleDisconnectEvent):
         if event.turtle_id in self.turtles.keys():
             self.turtles[event.turtle_id].set_connected(False)
+
+    def update_turtle_with_event(self, event:TurtleInfoEvent):
+        if event.turtle_id in self.turtles.keys():
+            position = (int(event.position["x"]), int(event.position["y"]), int(event.position["z"]))
+            self.set_block_at(position, "minecraft:air")
+            self.turtles[event.turtle_id].update_with_event(event)
 
 
 
