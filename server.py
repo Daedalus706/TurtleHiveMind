@@ -17,7 +17,7 @@ def register_logger(log_level):
         format="%(asctime)s[%(levelname)s] %(message)s",
         datefmt="[%Y-%m-%d %H:%M:%S]",
         handlers=[
-            logging.FileHandler(f"{const.LOG_FOLDER_PATH}/server{datetime.now().strftime('%Y-%m-%d')}.log"),
+            logging.FileHandler(f"{const.LOG_FOLDER_PATH}/server_{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.log"),
             logging.StreamHandler()
         ]
     )
