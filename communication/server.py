@@ -85,6 +85,10 @@ class Server:
                     self.logger.info(f"New command connection")
                     self.command.stop_event.wait()
 
+            case "shutdown":
+                self.logger.info(f"Shutdown requested")
+                self.command_controller.notify("Shutdown signal received")
+
             case _:
                 self.logger.error(f"Unknown handshake type: {handshake_data_dict['type']}")
 
