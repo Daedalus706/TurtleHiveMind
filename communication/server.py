@@ -57,7 +57,6 @@ class Server:
         except ConnectionClosed:
             self.logger.error(f"New connection failed to handshake")
             return
-        print(handshake_data_dict)
         match handshake_data_dict["type"]:
             case "turtle_handshake":
                 if client_ip != self.minecraft_ip:
