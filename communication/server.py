@@ -86,7 +86,7 @@ class Server:
                     self.command.stop_event.wait()
 
             case _:
-                pass
+                self.logger.error(f"Unknown handshake type: {handshake_data_dict['type']}")
 
 
     def start(self):
