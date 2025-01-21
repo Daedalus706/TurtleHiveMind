@@ -1,0 +1,6 @@
+local file = fs.open("websocketApi.lua", "w")
+local response = http.get("https://magnus-rpg.de/file/websocketApi.lua")
+file.write(response.readAll())
+file.close()
+response.close()
+os.reboot()
