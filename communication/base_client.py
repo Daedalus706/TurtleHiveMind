@@ -5,7 +5,7 @@ import threading
 
 from controller import MessageController, CommandController
 from util import const
-from websockets import *
+from websockets import ConnectionClosed
 from websockets.sync.server import ServerConnection
 
 
