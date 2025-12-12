@@ -174,3 +174,4 @@ cython_debug/
 test.py
 logs/
 settings.cfg
+.idea/
