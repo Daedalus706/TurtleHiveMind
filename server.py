@@ -67,9 +67,8 @@ if __name__ == '__main__':
             mind.update()
 
     except KeyboardInterrupt:
-        print("Stop signal received, exiting...")
+        logging.info("Stop signal received, exiting...")
         server.stop()
         model_controller.save()
 
-
-    print("Server stopped")
+    logging.info("Server stopped")

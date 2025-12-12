@@ -40,7 +40,7 @@ class ModelController:
 
         self.chunks:dict[tuple[int, int], np.ndarray] = {}
         self.chests:dict[tuple[int, int, int], Chest] = {}
-        self.turtles:dict[int:Turtle] = {}
+        self.turtles:dict[int, Turtle] = {}
         self.block_lookup:bidict[np.uint16, str] = bidict()
         self.load_chunks()
         self.load_chests()
